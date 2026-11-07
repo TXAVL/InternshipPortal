@@ -1,0 +1,29 @@
+## Visual Studio / .NET .gitignore
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Rider
+.idea/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Mac / Linux
+.DS_Store
+
