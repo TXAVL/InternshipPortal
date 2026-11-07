@@ -19,6 +19,10 @@ __pycache__/
 # Rider
 .idea/
 
+# User uploads
+InternshipPortal.Web/wwwroot/uploads/cvs/*
+!InternshipPortal.Web/wwwroot/uploads/cvs/.gitkeep
+
 # Windows
 Thumbs.db
 ehthumbs.db
