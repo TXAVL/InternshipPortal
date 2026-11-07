@@ -51,20 +51,25 @@ echo ===================================================
 echo [4/4] Uy quyen GitHub & Tu dong tao Pull Request...
 echo ===================================================
 
-:: Tim trinh thong dich Python (uu tien venv tu TXA-PACKAGE)
+:: Tim trinh thong dich Python tren may
 set "PYTHON_EXE="
-if exist "C:\Users\admin\Desktop\TXA-PACKAGE\tools\.venv\Scripts\python.exe" (
+where python >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    set "PYTHON_EXE=python"
+) else if exist "C:\Program Files\Python314\python.exe" (
+    set "PYTHON_EXE=C:\Program Files\Python314\python.exe"
+) else if exist "C:\Program Files\Python312\python.exe" (
+    set "PYTHON_EXE=C:\Program Files\Python312\python.exe"
+) else if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" (
+    set "PYTHON_EXE=%LOCALAPPDATA%\Programs\Python\Python312\python.exe"
+) else if exist "C:\Users\admin\Desktop\TXA-PACKAGE\tools\.venv\Scripts\python.exe" (
     set "PYTHON_EXE=C:\Users\admin\Desktop\TXA-PACKAGE\tools\.venv\Scripts\python.exe"
-) else (
-    where python >nul 2>nul
-    if !ERRORLEVEL! equ 0 set "PYTHON_EXE=python"
 )
 
 if defined PYTHON_EXE (
     "%PYTHON_EXE%" submit-pr.py
 ) else (
-    echo [WARNING] Khong tim thay Python de chay tu dong hoa Device Code.
-    echo Thuc hien push qua Git truyen thong:
+    echo [THONG BAO] May nay chua cai Python. Chay truc tiep bang Git va mo trinh duyet:
     git push -u origin feature/day-1-views --force
     set "REPO_URL="
     for /f "tokens=*" %%i in ('git config --get remote.origin.url 2^>nul') do set "REPO_URL=%%i"
@@ -73,6 +78,7 @@ if defined PYTHON_EXE (
         set "CLEAN_URL=!CLEAN_URL:git@github.com:=https://github.com/!"
         if "!CLEAN_URL:~-4!"==".git" set "CLEAN_URL=!CLEAN_URL:~0,-4!"
         set "PR_URL=!CLEAN_URL!/compare/main...feature/day-1-views?expand=1"
+        echo Dang mo link Pull Request: !PR_URL!
         start "" "!PR_URL!"
     )
 )

@@ -1,61 +1,139 @@
-@model IEnumerable<InternshipPortal.Web.Models.JobPost>
+@model InternshipPortal.Web.Models.ViewModels.JobFilterViewModel
 
 @{
-    ViewData["Title"] = "Danh sách việc làm thực tập";
+    ViewData["Title"] = "Cơ hội thực tập doanh nghiệp";
 }
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 fw-bold text-primary mb-1">Cơ Hội Thực Tập Doanh Nghiệp</h1>
-            <p class="text-muted mb-0">Khám phá các vị trí thực tập hấp dẫn và kết nối trực tiếp với doanh nghiệp hàng đầu.</p>
-        </div>
-        <div>
-            <span class="badge bg-primary fs-6 px-3 py-2">@Model.Count() việc làm đang tuyển</span>
+    <!-- Hero Banner & Filter Card -->
+    <div class="card border-0 shadow-sm bg-primary text-white rounded-3 mb-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5">
+            <h1 class="display-6 fw-bold mb-2">Cổng Thông Tin Thực Tập Doanh Nghiệp</h1>
+            <p class="lead mb-4 text-white-50">Khám phá cơ hội thực tập, tích lũy kinh nghiệm thực chiến và kết nối cùng các nhà tuyển dụng uy tín.</p>
+
+            <form method="get" asp-action="Index" class="bg-white p-3 rounded-3 shadow-sm text-dark">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search">🔍</i></span>
+                            <input type="text" name="keyword" class="form-control border-start-0" placeholder="Tên vị trí, công ty, kỹ năng..." value="@Model.Keyword" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="major" class="form-select">
+                            <option value="">-- Tất cả ngành nghề --</option>
+                            @foreach (var m in Model.AvailableMajors)
+                            {
+                                if (Model.Major == m)
+                                {
+                                    <option value="@m" selected="selected">@m</option>
+                                }
+                                else
+                                {
+                                    <option value="@m">@m</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="location" class="form-select">
+                            <option value="">-- Tất cả địa điểm --</option>
+                            @foreach (var loc in Model.AvailableLocations)
+                            {
+                                if (Model.Location == loc)
+                                {
+                                    <option value="@loc" selected="selected">@loc</option>
+                                }
+                                else
+                                {
+                                    <option value="@loc">@loc</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100 fw-semibold">Tìm kiếm</button>
+                        @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.Major) || !string.IsNullOrEmpty(Model.Location))
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary" title="Đặt lại bộ lọc">Xóa</a>
+                        }
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div class="row g-4">
-        @foreach (var job in Model)
+    <!-- Kết quả tìm kiếm -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0 text-dark">
+            Vị trí tuyển dụng đang mở
+            <span class="badge bg-secondary-subtle text-secondary fs-6 ms-2">@Model.Jobs.Count() việc làm</span>
+        </h4>
+        @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.Major) || !string.IsNullOrEmpty(Model.Location))
         {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm border-0 border-top border-primary border-3">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-light text-primary border">@job.Major</span>
-                            <span class="badge bg-success-subtle text-success">@job.SalaryRange</span>
-                        </div>
-                        <h5 class="card-title fw-bold mb-1">
-                            <a asp-action="Detail" asp-route-id="@job.Id" class="text-decoration-none text-dark">
-                                @job.Title
-                            </a>
-                        </h5>
-                        <h6 class="card-subtitle text-muted mb-3">
-                            <i class="bi bi-building"></i> @(job.Company?.CompanyName ?? "Doanh nghiệp")
-                        </h6>
-
-                        <p class="card-text text-secondary small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                            @job.Description
-                        </p>
-
-                        <div class="border-top pt-3 mt-2 small text-muted">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span><i class="bi bi-geo-alt"></i> @job.Location</span>
-                                <span><i class="bi bi-people"></i> Số lượng: <strong>@job.Quantity</strong></span>
-                            </div>
-                            <div class="text-end text-danger small">
-                                Hạn nộp: @job.ExpireDate.ToString("dd/MM/yyyy")
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-transparent border-0 pt-0 pb-3">
-                        <a asp-action="Detail" asp-route-id="@job.Id" class="btn btn-outline-primary w-100 btn-sm">
-                            Xem chi tiết
-                        </a>
-                    </div>
-                </div>
+            <div class="small text-muted">
+                Kết quả lọc cho:
+                @(string.IsNullOrEmpty(Model.Keyword) ? "" : $" Từ khóa \"{Model.Keyword}\" |")
+                @(string.IsNullOrEmpty(Model.Major) ? "" : $" Ngành \"{Model.Major}\" |")
+                @(string.IsNullOrEmpty(Model.Location) ? "" : $" Địa điểm \"{Model.Location}\"")
             </div>
         }
     </div>
-</div>
 
+    @if (!Model.Jobs.Any())
+    {
+        <div class="card border-0 shadow-sm py-5 text-center my-4">
+            <div class="card-body">
+                <div class="display-1 text-muted mb-3">🔎</div>
+                <h5 class="fw-bold text-dark">Không tìm thấy vị trí thực tập phù hợp</h5>
+                <p class="text-muted">Vui lòng thử tìm kiếm bằng từ khóa khác hoặc xóa bớt tiêu chí lọc.</p>
+                <a asp-action="Index" class="btn btn-outline-primary">Xem tất cả việc làm</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var job in Model.Jobs)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 border-top border-primary border-3 transition-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-light text-primary border">@job.Major</span>
+                                <span class="badge bg-success-subtle text-success">💰 @job.SalaryRange</span>
+                            </div>
+                            <h5 class="card-title fw-bold mb-1">
+                                <a asp-action="Detail" asp-route-id="@job.Id" class="text-decoration-none text-dark hover-primary">
+                                    @job.Title
+                                </a>
+                            </h5>
+                            <h6 class="card-subtitle text-muted mb-3">
+                                🏢 @(job.Company?.CompanyName ?? "Doanh nghiệp")
+                            </h6>
+
+                            <p class="card-text text-secondary small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                @job.Description
+                            </p>
+
+                            <div class="border-top pt-3 mt-2 small text-muted">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>📍 @job.Location</span>
+                                    <span>👥 Chỉ tiêu: <strong>@job.Quantity</strong></span>
+                                </div>
+                                <div class="text-end text-danger small">
+                                    ⏳ Hạn nộp: @job.ExpireDate.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                            <a asp-action="Detail" asp-route-id="@job.Id" class="btn btn-outline-primary w-100 fw-semibold">
+                                Xem chi tiết & Ứng tuyển
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
