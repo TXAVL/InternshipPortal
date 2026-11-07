@@ -57,7 +57,7 @@
                     <h5 class="fw-bold mt-4 mb-3 text-primary">🎯 Yêu cầu ứng viên</h5>
                     <p class="text-secondary fs-6 leading-relaxed" style="white-space: pre-line;">@Model.Requirements</p>
 
-                    <div class="mt-4 pt-4 border-top d-flex gap-2">
+                    <div class="mt-4 pt-4 border-top d-flex flex-wrap gap-2 align-items-center">
                         @if (Model.IsActive)
                         {
                             <button type="button" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
@@ -70,7 +70,15 @@
                                 Vị trí này đã đóng tuyển dụng
                             </button>
                         }
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary px-3 py-2">
+                            ✏️ Sửa tin
+                        </a>
+                        <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning px-3 py-2">
+                                @(Model.IsActive ? "🔒 Tạm đóng" : "🔓 Mở lại")
+                            </button>
+                        </form>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 ms-auto">
                             Quay lại
                         </a>
                     </div>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InternshipPortal.Web.Data;
 using InternshipPortal.Web.Models;
@@ -88,6 +89,123 @@ public class JobController : Controller
         };
 
         return View(job);
+    }
+
+    // GET: /Job/Create
+    public async Task<IActionResult> Create()
+    {
+        var companies = await _context.Companies
+            .Where(c => c.IsApproved)
+            .OrderBy(c => c.CompanyName)
+            .ToListAsync();
+
+        ViewBag.Companies = new SelectList(companies, "Id", "CompanyName");
+        return View(new JobPost());
+    }
+
+    // POST: /Job/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(JobPost job)
+    {
+        ModelState.Remove("Company");
+        ModelState.Remove("Applications");
+
+        if (ModelState.IsValid)
+        {
+            _context.JobPosts.Add(job);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đăng tin tuyển dụng mới thành công!";
+            return RedirectToAction(nameof(Detail), new { id = job.Id });
+        }
+
+        var companies = await _context.Companies
+            .Where(c => c.IsApproved)
+            .OrderBy(c => c.CompanyName)
+            .ToListAsync();
+
+        ViewBag.Companies = new SelectList(companies, "Id", "CompanyName", job.CompanyId);
+        return View(job);
+    }
+
+    // GET: /Job/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        var job = await _context.JobPosts.FindAsync(id);
+        if (job == null)
+        {
+            return NotFound();
+        }
+
+        var companies = await _context.Companies
+            .Where(c => c.IsApproved)
+            .OrderBy(c => c.CompanyName)
+            .ToListAsync();
+
+        ViewBag.Companies = new SelectList(companies, "Id", "CompanyName", job.CompanyId);
+        return View(job);
+    }
+
+    // POST: /Job/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, JobPost job)
+    {
+        if (id != job.Id)
+        {
+            return BadRequest();
+        }
+
+        ModelState.Remove("Company");
+        ModelState.Remove("Applications");
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                _context.Update(job);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật tin tuyển dụng thành công!";
+                return RedirectToAction(nameof(Detail), new { id = job.Id });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.JobPosts.AnyAsync(j => j.Id == id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+        }
+
+        var companies = await _context.Companies
+            .Where(c => c.IsApproved)
+            .OrderBy(c => c.CompanyName)
+            .ToListAsync();
+
+        ViewBag.Companies = new SelectList(companies, "Id", "CompanyName", job.CompanyId);
+        return View(job);
+    }
+
+    // POST: /Job/ToggleStatus/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleStatus(int id)
+    {
+        var job = await _context.JobPosts.FindAsync(id);
+        if (job == null)
+        {
+            return NotFound();
+        }
+
+        job.IsActive = !job.IsActive;
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = job.IsActive
+            ? "Đã mở lại tuyển dụng cho vị trí này!"
+            : "Đã tạm đóng tuyển dụng cho vị trí này!";
+
+        return RedirectToAction(nameof(Detail), new { id = job.Id });
     }
 
     // POST: /Job/Apply

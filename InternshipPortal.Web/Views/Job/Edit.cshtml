@@ -1,0 +1,99 @@
+@model InternshipPortal.Web.Models.JobPost
+
+@{
+    ViewData["Title"] = "Chỉnh sửa tin tuyển dụng: " + Model.Title;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Việc làm</a></li>
+            <li class="breadcrumb-item"><a asp-action="Detail" asp-route-id="@Model.Id" class="text-decoration-none">@Model.Title</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">✏️ Chỉnh Sửa Tin Tuyển Dụng</h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label asp-for="Title" class="form-label fw-semibold">Tiêu đề vị trí tuyển dụng <span class="text-danger">*</span></label>
+                                <input asp-for="Title" class="form-control" required />
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="CompanyId" class="form-label fw-semibold">Doanh nghiệp <span class="text-danger">*</span></label>
+                                <select asp-for="CompanyId" class="form-select" asp-items="ViewBag.Companies" required></select>
+                                <span asp-validation-for="CompanyId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="Major" class="form-label fw-semibold">Chuyên ngành</label>
+                                <input asp-for="Major" class="form-control" />
+                                <span asp-validation-for="Major" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="Location" class="form-label fw-semibold">Địa điểm làm việc</label>
+                                <input asp-for="Location" class="form-control" />
+                                <span asp-validation-for="Location" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="SalaryRange" class="form-label fw-semibold">Mức lương trợ cấp</label>
+                                <input asp-for="SalaryRange" class="form-control" />
+                                <span asp-validation-for="SalaryRange" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Quantity" class="form-label fw-semibold">Số lượng chỉ tiêu</label>
+                                <input asp-for="Quantity" type="number" class="form-control" min="1" />
+                                <span asp-validation-for="Quantity" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ExpireDate" class="form-label fw-semibold">Hạn nộp hồ sơ</label>
+                                <input asp-for="ExpireDate" type="date" class="form-control" value="@Model.ExpireDate.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="ExpireDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label fw-semibold">Mô tả công việc</label>
+                                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Requirements" class="form-label fw-semibold">Yêu cầu ứng viên</label>
+                                <textarea asp-for="Requirements" class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="Requirements" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsActive" class="form-check-input" />
+                                    <label asp-for="IsActive" class="form-check-label fw-semibold">Đang mở ứng tuyển</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top d-flex gap-2">
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold">Lưu thay đổi</button>
+                            <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-4">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
