@@ -16,9 +16,9 @@ if os.path.isdir(TXA_SRC_DIR) and TXA_SRC_DIR not in sys.path:
     sys.path.insert(0, TXA_SRC_DIR)
 
 try:
-    from txa.core import credentials
-    from txa.core.github import GitHub, GitHubError, device_flow
-    from txa.constants import GITHUB_CLIENT_ID
+    from txa.core import credentials  # type: ignore
+    from txa.core.github import GitHub, GitHubError, device_flow  # type: ignore
+    from txa.constants import GITHUB_CLIENT_ID  # type: ignore
 except ImportError:
     # Dự phòng nếu không import được từ txa package
     GITHUB_CLIENT_ID = "Ov23li4g1C3hqWizG52D"
