@@ -1,0 +1,115 @@
+@model InternshipPortal.Web.Models.Company
+
+@{
+    ViewData["Title"] = "Hồ sơ doanh nghiệp: " + Model.CompanyName;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Doanh nghiệp</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.CompanyName</li>
+        </ol>
+    </nav>
+
+    <!-- Thông tin tổng quan công ty -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <span class="badge @(Model.IsApproved ? "bg-success" : "bg-warning") mb-2">
+                        @(Model.IsApproved ? "✓ Đối tác chính thức" : "⏳ Chưa duyệt")
+                    </span>
+                    <h2 class="fw-bold text-dark mb-1">🏢 @Model.CompanyName</h2>
+                    <p class="text-muted mb-0">📍 @(Model.Address ?? "Địa chỉ đang cập nhật")</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                        ✏️ Sửa thông tin
+                    </a>
+                    <form asp-action="ToggleApproval" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-secondary">
+                            @(Model.IsApproved ? "Tạm khóa duyệt" : "Phê duyệt")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-3 pt-3 border-top mt-2 text-secondary">
+                <div class="col-md-4">
+                    <strong>📧 Email tuyển dụng:</strong><br />
+                    @(Model.ContactEmail ?? "Chưa có")
+                </div>
+                <div class="col-md-4">
+                    <strong>🌐 Trang web:</strong><br />
+                    @if (!string.IsNullOrEmpty(Model.Website))
+                    {
+                        <a href="@Model.Website" target="_blank">@Model.Website</a>
+                    }
+                    else
+                    {
+                        <span>Chưa có</span>
+                    }
+                </div>
+                <div class="col-md-4">
+                    <strong>📊 Tin tuyển dụng:</strong><br />
+                    <span>@(Model.JobPosts?.Count ?? 0) vị trí (@(Model.JobPosts?.Count(j => j.IsActive) ?? 0) đang mở)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách việc làm của doanh nghiệp -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0 text-dark">Các Vị Trí Đang Tuyển Dụng Tại @Model.CompanyName</h4>
+        <a asp-controller="Job" asp-action="Create" class="btn btn-sm btn-primary">
+            ➕ Đăng tin cho công ty này
+        </a>
+    </div>
+
+    <div class="row g-3">
+        @if (Model.JobPosts == null || !Model.JobPosts.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-light border py-4 text-center text-muted">
+                    Công ty này chưa đăng tin tuyển dụng nào.
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var job in Model.JobPosts)
+            {
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-light text-primary border">@job.Major</span>
+                                <span class="badge bg-success-subtle text-success">@job.SalaryRange</span>
+                            </div>
+                            <h5 class="fw-bold mb-1">
+                                <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Id" class="text-decoration-none text-dark">
+                                    @job.Title
+                                </a>
+                            </h5>
+                            <div class="small text-muted mb-2">
+                                📍 @job.Location | 👥 @job.Quantity chỉ tiêu | ⏳ Hạn: @job.ExpireDate.ToString("dd/MM/yyyy")
+                            </div>
+                            <p class="small text-secondary mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @job.Description
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <span class="badge @(job.IsActive ? "bg-success" : "bg-secondary")">
+                                    @(job.IsActive ? "Đang mở" : "Đã đóng")
+                                </span>
+                                <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary">
+                                    Chi tiết & Ứng tuyển
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

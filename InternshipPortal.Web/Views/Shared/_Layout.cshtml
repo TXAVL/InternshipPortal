@@ -20,12 +20,20 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Job" asp-action="Index">💼 Cơ hội việc làm</a>
+                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Job" asp-action="Index">💼 Việc làm thực tập</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Company" asp-action="Index">🏢 Doanh nghiệp</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Application" asp-action="Index">📋 Quản lý ứng tuyển</a>
                         </li>
                     </ul>
+                    <div class="d-flex">
+                        <a asp-controller="Job" asp-action="Create" class="btn btn-outline-primary btn-sm fw-semibold">
+                            ➕ Đăng tin
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>

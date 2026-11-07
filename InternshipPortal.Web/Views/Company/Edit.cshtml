@@ -1,0 +1,68 @@
+@model InternshipPortal.Web.Models.Company
+
+@{
+    ViewData["Title"] = "Chỉnh sửa doanh nghiệp: " + Model.CompanyName;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Doanh nghiệp</a></li>
+            <li class="breadcrumb-item"><a asp-action="Detail" asp-route-id="@Model.Id" class="text-decoration-none">@Model.CompanyName</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">✏️ Chỉnh Sửa Doanh Nghiệp Đối Tác</h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CompanyName" class="form-label fw-semibold">Tên doanh nghiệp <span class="text-danger">*</span></label>
+                            <input asp-for="CompanyName" class="form-control" required />
+                            <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label fw-semibold">Địa chỉ trụ sở / văn phòng</label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ContactEmail" class="form-label fw-semibold">Email tuyển dụng / liên hệ</label>
+                                <input asp-for="ContactEmail" type="email" class="form-control" />
+                                <span asp-validation-for="ContactEmail" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Website" class="form-label fw-semibold">Website chính thức</label>
+                                <input asp-for="Website" type="url" class="form-control" />
+                                <span asp-validation-for="Website" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsApproved" class="form-check-input" />
+                                <label asp-for="IsApproved" class="form-check-label fw-semibold">Được phê duyệt hợp tác</label>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-top d-flex gap-2">
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold">Lưu thay đổi</button>
+                            <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-4">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,111 @@
+@model IEnumerable<InternshipPortal.Web.Models.Company>
+
+@{
+    ViewData["Title"] = "Doanh nghiệp đối tác";
+    string? searchTerm = ViewBag.SearchTerm;
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="h3 fw-bold text-primary mb-1">Mạng Lưới Doanh Nghiệp Đối Tác</h2>
+            <p class="text-muted mb-0">Các tập đoàn, doanh nghiệp công nghệ liên kết tiếp nhận sinh viên thực tập.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary fw-semibold shadow-sm d-flex align-items-center gap-1">
+            <span>🏢</span> Thêm doanh nghiệp mới
+        </a>
+    </div>
+
+    <!-- Alert -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <strong>✓ Thành công:</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Search box -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" asp-action="Index" class="row g-2">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-muted">🔍</span>
+                        <input type="text" name="search" class="form-control border-start-0" placeholder="Tên công ty, địa chỉ, email liên hệ..." value="@searchTerm" />
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 fw-semibold">Tìm kiếm</button>
+                    @if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary" title="Xóa tìm kiếm">Xóa</a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Company Grid -->
+    <div class="row g-4">
+        @if (!Model.Any())
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm py-5 text-center">
+                    <div class="display-3 text-muted mb-2">🏢</div>
+                    <h5 class="fw-bold text-dark">Chưa có doanh nghiệp nào phù hợp</h5>
+                    <p class="text-muted">Vui lòng thử tìm kiếm lại hoặc bấm thêm doanh nghiệp mới.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var c in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 border-top border-primary border-3">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge @(c.IsApproved ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning")">
+                                    @(c.IsApproved ? "✓ Đã duyệt hợp tác" : "⏳ Chờ duyệt")
+                                </span>
+                                <span class="badge bg-light text-primary border">
+                                    @(c.JobPosts?.Count(j => j.IsActive) ?? 0) việc làm mở
+                                </span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-2">
+                                <a asp-action="Detail" asp-route-id="@c.Id" class="text-decoration-none text-dark">
+                                    @c.CompanyName
+                                </a>
+                            </h5>
+
+                            <p class="card-text text-muted small mb-2">
+                                <strong>📍 Địa chỉ:</strong> @(c.Address ?? "Đang cập nhật")
+                            </p>
+                            <p class="card-text text-muted small mb-2">
+                                <strong>📧 Email:</strong> @(c.ContactEmail ?? "Đang cập nhật")
+                            </p>
+                            @if (!string.IsNullOrEmpty(c.Website))
+                            {
+                                <p class="card-text text-muted small mb-3">
+                                    <strong>🌐 Web:</strong> <a href="@c.Website" target="_blank" class="text-decoration-none">@c.Website</a>
+                                </p>
+                            }
+
+                            <div class="mt-auto pt-3 border-top d-flex gap-2">
+                                <a asp-action="Detail" asp-route-id="@c.Id" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                    Xem chi tiết
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-outline-secondary btn-sm">
+                                    ✏️ Sửa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
