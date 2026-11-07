@@ -50,3 +50,4 @@ Khi bạn hoàn thành công việc và muốn đẩy code lên GitHub:
 - `InternshipPortal.Web/Data/`: `ApplicationDbContext` và `DbInitializer`.
 - `InternshipPortal.Web/Controllers/`: `JobController` (danh sách & chi tiết việc làm), `HomeController`.
 - `InternshipPortal.Web/Views/`: Giao diện Razor Views Bootstrap 5.
+

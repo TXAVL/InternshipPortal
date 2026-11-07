@@ -2,41 +2,75 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    var applyModel = ViewBag.ApplyModel as InternshipPortal.Web.Models.ViewModels.ApplyJobViewModel;
 }
 
 <div class="container py-4">
+    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index">Danh sách việc làm</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Danh sách việc làm</a></li>
             <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
         </ol>
     </nav>
 
+    <!-- Thông báo TempData -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <strong>🎉 Thành công!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+            <strong>⚠️ Chú ý:</strong> @TempData["WarningMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <strong>❌ Lỗi:</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
+                <div class="card-body p-4 p-md-5">
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="badge bg-primary">@Model.Major</span>
-                        <span class="badge bg-success">@Model.SalaryRange</span>
+                        <span class="badge bg-primary fs-6 px-3 py-2">@Model.Major</span>
+                        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">💰 @Model.SalaryRange</span>
                     </div>
 
                     <h2 class="card-title fw-bold text-dark mb-2">@Model.Title</h2>
-                    <h5 class="text-secondary mb-4">@(Model.Company?.CompanyName ?? "Doanh nghiệp")</h5>
+                    <h5 class="text-secondary mb-4">🏢 @(Model.Company?.CompanyName ?? "Doanh nghiệp")</h5>
 
                     <hr />
 
-                    <h5 class="fw-bold mt-4 mb-3 text-primary">Mô tả công việc</h5>
-                    <p class="text-secondary" style="white-space: pre-line;">@Model.Description</p>
+                    <h5 class="fw-bold mt-4 mb-3 text-primary">📌 Mô tả công việc</h5>
+                    <p class="text-secondary fs-6 leading-relaxed" style="white-space: pre-line;">@Model.Description</p>
 
-                    <h5 class="fw-bold mt-4 mb-3 text-primary">Yêu cầu ứng viên</h5>
-                    <p class="text-secondary" style="white-space: pre-line;">@Model.Requirements</p>
+                    <h5 class="fw-bold mt-4 mb-3 text-primary">🎯 Yêu cầu ứng viên</h5>
+                    <p class="text-secondary fs-6 leading-relaxed" style="white-space: pre-line;">@Model.Requirements</p>
 
-                    <div class="mt-4 pt-3 border-top d-flex gap-2">
-                        <a href="javascript:void(0)" class="btn btn-primary px-4" onclick="alert('Tính năng nộp hồ sơ sẽ sẵn sàng ở Ngày tiếp theo!')">
-                            Ứng tuyển ngay
-                        </a>
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <div class="mt-4 pt-4 border-top d-flex gap-2">
+                        @if (Model.IsActive)
+                        {
+                            <button type="button" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
+                                🚀 Ứng tuyển ngay
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-secondary px-4 py-2" disabled>
+                                Vị trí này đã đóng tuyển dụng
+                            </button>
+                        }
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">
                             Quay lại
                         </a>
                     </div>
@@ -45,27 +79,28 @@
         </div>
 
         <div class="col-lg-4">
+            <!-- Thẻ thông tin việc làm -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-primary text-white py-3">
-                    <h6 class="mb-0 fw-bold">Thông tin việc làm</h6>
+                    <h6 class="mb-0 fw-bold">📋 Thông tin việc làm</h6>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
                         <li class="mb-3">
                             <span class="text-muted d-block small">Địa điểm làm việc</span>
-                            <strong>@Model.Location</strong>
+                            <strong>📍 @Model.Location</strong>
                         </li>
                         <li class="mb-3">
                             <span class="text-muted d-block small">Mức lương trợ cấp</span>
-                            <strong>@Model.SalaryRange</strong>
+                            <strong class="text-success">💰 @Model.SalaryRange</strong>
                         </li>
                         <li class="mb-3">
-                            <span class="text-muted d-block small">Số lượng tuyển dụng</span>
-                            <strong>@Model.Quantity chỉ tiêu</strong>
+                            <span class="text-muted d-block small">Chỉ tiêu tuyển dụng</span>
+                            <strong>👥 @Model.Quantity chỉ tiêu</strong>
                         </li>
                         <li class="mb-3">
                             <span class="text-muted d-block small">Hạn nộp hồ sơ</span>
-                            <strong class="text-danger">@Model.ExpireDate.ToString("dd/MM/yyyy")</strong>
+                            <strong class="text-danger">⏳ @Model.ExpireDate.ToString("dd/MM/yyyy")</strong>
                         </li>
                         <li>
                             <span class="text-muted d-block small">Trạng thái</span>
@@ -77,9 +112,10 @@
                 </div>
             </div>
 
+            <!-- Thẻ thông tin công ty -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light py-3">
-                    <h6 class="mb-0 fw-bold">Thông tin doanh nghiệp</h6>
+                    <h6 class="mb-0 fw-bold">🏢 Thông tin doanh nghiệp</h6>
                 </div>
                 <div class="card-body">
                     <h5 class="fw-bold mb-2">@(Model.Company?.CompanyName)</h5>
@@ -92,7 +128,7 @@
                     @if (!string.IsNullOrEmpty(Model.Company?.Website))
                     {
                         <p class="small mb-0">
-                            <strong>Website:</strong> <a href="@Model.Company.Website" target="_blank">@Model.Company.Website</a>
+                            <strong>Website:</strong> <a href="@Model.Company.Website" target="_blank" class="text-decoration-none">@Model.Company.Website</a>
                         </p>
                     }
                 </div>
@@ -101,3 +137,59 @@
     </div>
 </div>
 
+<!-- Modal Nộp hồ sơ ứng tuyển -->
+<div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="applyModalLabel">
+                    Ứng tuyển vị trí: @Model.Title
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Apply" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="JobPostId" value="@Model.Id" />
+                <input type="hidden" name="JobTitle" value="@Model.Title" />
+                <input type="hidden" name="CompanyName" value="@(Model.Company?.CompanyName)" />
+
+                <div class="modal-body p-4">
+                    <div class="alert alert-info py-2 small mb-4">
+                        💡 Vui lòng điền chính xác thông tin để nhà tuyển dụng liên hệ phỏng vấn khi hồ sơ đạt yêu cầu.
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mã sinh viên <span class="text-danger">*</span></label>
+                            <input type="text" name="StudentCode" class="form-control" placeholder="VD: SV2026001" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" name="FullName" class="form-control" placeholder="VD: Nguyễn Văn A" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Chuyên ngành</label>
+                            <input type="text" name="Major" class="form-control" value="@Model.Major" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="tel" name="PhoneNumber" class="form-control" placeholder="VD: 0912345678" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Email liên hệ <span class="text-danger">*</span></label>
+                            <input type="email" name="Email" class="form-control" placeholder="VD: sinhvien@email.com" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Đính kèm CV (Hồ sơ năng lực)</label>
+                            <input type="file" name="CVFile" class="form-control" accept=".pdf,.doc,.docx" />
+                            <div class="form-text">Hỗ trợ định dạng .pdf, .doc, .docx (Dung lượng tối đa 10MB).</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">Xác nhận nộp hồ sơ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

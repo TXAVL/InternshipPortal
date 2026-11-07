@@ -35,3 +35,4 @@ public class ApplyJobViewModel
     [Display(Name = "Đính kèm CV (PDF, DOC, DOCX)")]
     public IFormFile? CVFile { get; set; }
 }
+

@@ -14,3 +14,4 @@ public class JobFilterViewModel
 
     public List<string> AvailableLocations { get; set; } = new();
 }
+
