@@ -1,53 +1,40 @@
 # 🎓 InternshipPortal - Cổng Thông Tin Thực Tập Doanh Nghiệp
 
-Dự án Web ASP.NET Core MVC chạy **.NET 8 (LTS)** kết nối **Entity Framework Core (SQL Server)** và thư viện xuất báo cáo **ClosedXML**.
+Dự án Web ASP.NET Core MVC chạy **.NET 8 (LTS)** kết nối **Entity Framework Core (SQL Server 2022 Express / LocalDB)** và xuất báo cáo **ClosedXML**.
+
+Tương thích hoàn hảo với **Visual Studio 2022** và **SQL Server 2022 Express**.
 
 ---
 
-## 🚀 Hướng Dẫn Chạy Dự Án Cho Các Thành Viên (Clone Về Máy Khác)
+## 🚀 Hướng Dẫn Chạy Trên Visual Studio 2022 & SQL Server 2022 Express
 
-### 1. Yêu cầu hệ thống
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- SQL Server (Mặc định dùng **LocalDB** đi kèm Visual Studio).
+### 1. Môi trường phát triển
+- **IDE**: Visual Studio 2022 (v17.8+ hỗ trợ .NET 8 LTS).
+- **Hệ quản trị CSDL**: SQL Server 2022 Express (Instance name: `.\SQLEXPRESS`).
 
-### 2. Cấu hình CSDL (Database)
-- Trong file `InternshipPortal.Web/appsettings.json`, connection string mặc định là:
-  ```json
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=InternshipDb;Trusted_Connection=True;MultipleActiveResultSets=true"
-  }
-  ```
-- **Tự động tạo & Seed dữ liệu**: Khi chạy dự án lần đầu, `DbInitializer.Initialize()` sẽ tự động:
-  1. Tạo CSDL `InternshipDb` trên LocalDB của máy bạn (nếu chưa có).
-  2. Tạo các bảng dữ liệu: `Companies`, `JobPosts`, `StudentProfiles`, `Applications`.
-  3. Tự động nạp sẵn dữ liệu mẫu: 2 công ty (**FPT Software**, **Viettel Solutions**) và 3 tin tuyển dụng thực tập.
-- **Nếu máy bạn dùng SQL Server khác**:
-  - Dùng SQL Express: Đổi thành `Server=.\\SQLEXPRESS;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true`
-  - Dùng SQL Server cục bộ: Đổi thành `Server=.;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true`
-
-### 3. Lệnh khởi chạy ứng dụng
-Mở terminal tại thư mục gốc của dự án và chạy:
-```bash
-dotnet run --project InternshipPortal.Web
+### 2. Cấu hình CSDL (`appsettings.json`)
+Chuỗi kết nối mặc định trong `InternshipPortal.Web/appsettings.json` đã được cài sẵn cho **SQL Server 2022 Express**:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=.\\SQLEXPRESS;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true",
+  "LocalDbConnection": "Server=(localdb)\\mssqllocaldb;Database=InternshipDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+}
 ```
-Sau đó mở trình duyệt truy cập: `https://localhost:5001` hoặc `http://localhost:5000` (được định tuyến mặc định vào danh sách việc làm `Job/Index`).
+
+> **Lưu ý quan trọng cho SQL Server 2022**: Cần có tham số `TrustServerCertificate=True` vì từ SQL Server 2022, Microsoft mặc định bật mã hóa kết nối (`Encrypt=True`), nếu không có cờ này sẽ phát sinh lỗi chứng chỉ SSL cục bộ.
+
+### 3. Khởi chạy và Tự Động Tạo CSDL
+Khi bạn nhấn **F5** hoặc **Ctrl + F5** trong Visual Studio 2022 (hoặc gõ `dotnet run --project InternshipPortal.Web`):
+- Hệ thống sẽ tự động gọi `DbInitializer.Initialize(context)`.
+- Phương thức `context.Database.EnsureCreated()` sẽ **tự động tạo database `InternshipDb` trên SQL Server 2022 Express** (nếu chưa có).
+- Tự động sinh toàn bộ 4 bảng: `Companies`, `JobPosts`, `StudentProfiles`, `Applications`.
+- Tự động nạp dữ liệu khởi tạo:
+  - 2 công ty mẫu: **FPT Software** và **Viettel Solutions**.
+  - 3 tin tuyển dụng thực tập mẫu liên kết với 2 công ty.
 
 ---
 
-## 🛠️ Nộp Bài / Tự Động Tạo Pull Request (`submit-work.bat`)
-Khi bạn hoàn thành công việc và muốn đẩy code lên GitHub:
-1. Nhấp đúp chuột chạy file `submit-work.bat` (hoặc gõ `.\submit-work.bat` trong terminal).
-2. Script sẽ tự động:
-   - Build dự án ở chế độ `Release` (ngăn chặn đẩy code nếu có lỗi biên dịch).
-   - Tạo / chuyển sang nhánh `feature/day-1-views`.
-   - Ủy quyền GitHub một lần duy nhất bằng **Device Code** (tự động copy mã và mở trình duyệt để bạn bấm xác nhận).
-   - Đẩy code và **tự động tạo Pull Request vào `main` trên GitHub**.
-
----
-
-## 📁 Cấu Trúc Dự Án
-- `InternshipPortal.Web/Models/`: Chứa các thực thể `Company`, `JobPost`, `StudentProfile`, `Application`.
-- `InternshipPortal.Web/Data/`: `ApplicationDbContext` và `DbInitializer`.
-- `InternshipPortal.Web/Controllers/`: `JobController` (danh sách & chi tiết việc làm), `HomeController`.
-- `InternshipPortal.Web/Views/`: Giao diện Razor Views Bootstrap 5.
-
+## 🛠️ Nộp Bài Tự Động (`submit-work.bat`)
+Khi hoàn thành công việc:
+1. Nhấp đúp vào file `submit-work.bat` ở thư mục gốc.
+2. Script sẽ tự build Release, commit code và tự động ủy quyền GitHub Device Code để tạo Pull Request.
