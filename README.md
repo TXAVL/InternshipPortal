@@ -13,10 +13,11 @@ Tương thích hoàn hảo với **Visual Studio 2022** và **SQL Server 2022 Ex
 - **Hệ quản trị CSDL**: SQL Server 2022 Express (Instance name: `.\SQLEXPRESS`).
 
 ### 2. Cấu hình CSDL (`appsettings.json`)
-Chuỗi kết nối mặc định trong `InternshipPortal.Web/appsettings.json` đã được cài sẵn cho **SQL Server 2022 Express**:
+Chuỗi kết nối mặc định trong `InternshipPortal.Web/appsettings.json` đã được cài sẵn cho máy chủ của bạn (`NHINDB`):
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=.\\SQLEXPRESS;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true",
+  "DefaultConnection": "Server=NHINDB;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true",
+  "SqlExpressConnection": "Server=.\\SQLEXPRESS;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true",
   "LocalDbConnection": "Server=(localdb)\\mssqllocaldb;Database=InternshipDb;Trusted_Connection=True;MultipleActiveResultSets=true"
 }
 ```
