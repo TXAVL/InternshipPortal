@@ -23,6 +23,11 @@ __pycache__/
 InternshipPortal.Web/wwwroot/uploads/cvs/*
 !InternshipPortal.Web/wwwroot/uploads/cvs/.gitkeep
 
+# Environment configs (chống xung đột cấu hình SQL giữa các máy)
+**/appsettings.json
+**/appsettings.Development.json
+!**/appsettings.example.json
+
 # Windows
 Thumbs.db
 ehthumbs.db

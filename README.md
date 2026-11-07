@@ -9,7 +9,8 @@ Tương thích hoàn hảo với **Visual Studio 2022** và **SQL Server 2022 / 
 ## 🚀 Hướng Dẫn Chạy Dự Án (Visual Studio 2022)
 
 ### 1. Cấu hình CSDL (`appsettings.json`)
-Chuỗi kết nối mặc định trong `InternshipPortal.Web/appsettings.json` đã được cài sẵn cho **SQL Server Express** (`.\SQLEXPRESS`):
+File cấu hình `appsettings.json` được đưa vào `.gitignore` để tránh xung đột cấu hình SQL giữa các thành viên.
+- Nếu clone về máy mới chưa có file `appsettings.json`, bạn chỉ cần copy từ file mẫu [appsettings.example.json](file:///c:/Users/admin/Desktop/InternshipPortal/InternshipPortal.Web/appsettings.example.json):
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.\\SQLEXPRESS;Database=InternshipDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true",
