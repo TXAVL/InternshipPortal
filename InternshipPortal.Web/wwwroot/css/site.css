@@ -1,22 +1,155 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+:root {
+    --bs-body-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    --bs-primary: #0d6efd;
+    --bs-primary-rgb: 13, 110, 253;
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: var(--bs-body-font-family);
+    background-color: #f8fafc;
+    color: #334155;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Brand Icon */
+.brand-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+}
+
+    .brand-icon.small {
+        width: 28px;
+        height: 28px;
+        font-size: 0.95rem;
+    }
+
+/* Navigation Links Hover */
+.hover-nav {
+    transition: all 0.2s ease;
+}
+
+    .hover-nav:hover {
+        color: #0d6efd !important;
+        background-color: #eff6ff;
+    }
+
+.hover-primary:hover {
+    color: #0d6efd !important;
+}
+
+/* Card Styling & Shadows */
+.card {
+    border-color: #e2e8f0;
+    border-radius: 12px;
+}
+
+.shadow-xs {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-sm {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Table Styling (Áp dụng cho trang Quản lý ứng tuyển) */
+.table {
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+
+    .table th {
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #64748b;
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table td {
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Inputs & Form Controls */
+.form-control, .form-select {
+    border-color: #cbd5e1;
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.92rem;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: translateY(-1px);
+    }
+
+/* Badges */
+.badge {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0.4em 0.65em;
+}
+/* Hero Gradient & Card Setup */
+.hero-search-wrapper {
+    background: linear-gradient(135deg, #1e40af 0%, #0d6efd 50%, #3b82f6 100%);
+}
+
+.hero-search-form .form-control,
+.hero-search-form .form-select {
+    font-size: 0.88rem;
+    background-color: transparent;
+}
+
+    .hero-search-form .form-control:focus,
+    .hero-search-form .form-select:focus {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+@media (min-width: 992px) {
+    .border-start-lg {
+        border-left: 1px solid #e2e8f0 !important;
+    }
+}
+
+.hover-badge {
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+    .hover-badge:hover {
+        background-color: rgba(255, 255, 255, 0.45) !important;
+        color: #fff !important;
+    }
+/* Tinh chỉnh thanh cuộn ngang khi bảng dài */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
 }

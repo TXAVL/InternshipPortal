@@ -6,69 +6,115 @@
 
 <div class="container py-4">
     <!-- Hero Banner & Filter Card -->
-    <div class="card border-0 shadow-sm bg-primary text-white rounded-3 mb-4 overflow-hidden">
-        <div class="card-body p-4 p-md-5">
-            <h1 class="display-6 fw-bold mb-2">Cổng Thông Tin Thực Tập Doanh Nghiệp</h1>
-            <p class="lead mb-4 text-white-50">Khám phá cơ hội thực tập, tích lũy kinh nghiệm thực chiến và kết nối cùng các nhà tuyển dụng uy tín.</p>
+    <!-- Compact & Modern Hero Search Section -->
+    <div class="hero-search-wrapper mb-4 rounded-4 text-white p-4 p-lg-4 position-relative overflow-hidden shadow-sm">
+        <div class="position-relative z-1">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h4 fw-bold mb-1 tracking-tight">Cổng Thông Tin Thực Tập Doanh Nghiệp</h2>
+                    <p class="text-white-50 small mb-0">Khám phá cơ hội thực tập và kết nối cùng các doanh nghiệp uy tín.</p>
+                </div>
+            </div>
 
-            <form method="get" asp-action="Index" class="bg-white p-3 rounded-3 shadow-sm text-dark">
+            <!-- Integrated Search Bar -->
+            <form method="get" asp-controller="Job" asp-action="Index" class="hero-search-form bg-white rounded-3 p-2 shadow-sm">
                 <div class="row g-2 align-items-center">
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search">🔍</i></span>
-                            <input type="text" name="keyword" class="form-control border-start-0" placeholder="Tên vị trí, công ty, kỹ năng..." value="@Model.Keyword" />
+                    <!-- Ô từ khóa -->
+                    <div class="col-lg-5 col-md-12">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-transparent border-0 text-muted ps-2">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="keyword" class="form-control border-0 shadow-none ps-1" 
+                                   placeholder="Tên vị trí tuyển dụng, kỹ năng..." value="@Model.Keyword" />
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <select name="major" class="form-select">
-                            <option value="">-- Tất cả ngành nghề --</option>
-                            @foreach (var m in Model.AvailableMajors)
-                            {
-                                if (Model.Major == m)
+
+                    <!-- Ngành nghề -->
+                    <div class="col-lg-3 col-md-6 border-start-lg">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-transparent border-0 text-muted ps-2">
+                                <i class="bi bi-briefcase"></i>
+                            </span>
+                            <select name="major" class="form-select border-0 shadow-none ps-1">
+                                <option value="">Tất cả ngành nghề</option>
+                                @if (Model.AvailableMajors != null)
                                 {
-                                    <option value="@m" selected="selected">@m</option>
+                                    @foreach (var m in Model.AvailableMajors)
+                                    {
+                                        if (Model.Major == m)
+                                        {
+                                            <option value="@m" selected="selected">@m</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@m">@m</option>
+                                        }
+                                    }
                                 }
-                                else
-                                {
-                                    <option value="@m">@m</option>
-                                }
-                            }
-                        </select>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <select name="location" class="form-select">
-                            <option value="">-- Tất cả địa điểm --</option>
-                            @foreach (var loc in Model.AvailableLocations)
-                            {
-                                if (Model.Location == loc)
+
+                    <!-- Địa điểm -->
+                    <div class="col-lg-2 col-md-6 border-start-lg">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-transparent border-0 text-muted ps-2">
+                                <i class="bi bi-geo-alt"></i>
+                            </span>
+                            <select name="location" class="form-select border-0 shadow-none ps-1">
+                                <option value="">Tất cả địa điểm</option>
+                                @if (Model.AvailableLocations != null)
                                 {
-                                    <option value="@loc" selected="selected">@loc</option>
+                                    @foreach (var loc in Model.AvailableLocations)
+                                    {
+                                        if (Model.Location == loc)
+                                        {
+                                            <option value="@loc" selected="selected">@loc</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@loc">@loc</option>
+                                        }
+                                    }
                                 }
-                                else
-                                {
-                                    <option value="@loc">@loc</option>
-                                }
-                            }
-                        </select>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100 fw-semibold">Tìm kiếm</button>
+
+                    <!-- Nút bấm -->
+                    <div class="col-lg-2 col-md-12 d-flex gap-1">
+                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold py-2 d-flex align-items-center justify-content-center gap-1 rounded-2">
+                            <i class="bi bi-search"></i>
+                            <span>Tìm kiếm</span>
+                        </button>
                         @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.Major) || !string.IsNullOrEmpty(Model.Location))
                         {
-                            <a asp-action="Index" class="btn btn-outline-secondary" title="Đặt lại bộ lọc">Xóa</a>
+                            <a asp-controller="Job" asp-action="Index" class="btn btn-light btn-sm text-muted border py-2 px-2" title="Xóa bộ lọc">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
                         }
                     </div>
                 </div>
             </form>
+
+            <!-- Gợi ý tìm nhanh -->
+            <div class="d-flex align-items-center gap-2 mt-2 pt-1 flex-wrap small text-white-50">
+                <span class="small">Gợi ý tìm nhanh:</span>
+                <a asp-controller="Job" asp-action="Index" asp-route-major="CNTT" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">CNTT</a>
+                <a asp-controller="Job" asp-action="Index" asp-route-location="Hà Nội" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">Hà Nội</a>
+                <a asp-controller="Job" asp-action="Index" asp-route-keyword="React" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">React</a>
+                <a asp-controller="Job" asp-action="Index" asp-route-keyword="Data" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">Data Engineer</a>
+            </div>
         </div>
     </div>
 
-    <!-- Kết quả tìm kiếm -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="fw-bold mb-0 text-dark">
-            Vị trí tuyển dụng đang mở
-            <span class="badge bg-secondary-subtle text-secondary fs-6 ms-2">@Model.Jobs.Count() việc làm</span>
-        </h4>
+    <!-- Tiêu đề & Nút đăng tin -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark d-inline-block">Vị trí tuyển dụng đang mở</h4>
+            <span class="badge bg-secondary-subtle text-secondary fs-6 ms-2">@(Model.Jobs?.Count() ?? 0) việc làm</span>
+        </div>
         <div class="d-flex align-items-center gap-3">
             @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.Major) || !string.IsNullOrEmpty(Model.Location))
             {
@@ -79,20 +125,21 @@
                     @(string.IsNullOrEmpty(Model.Location) ? "" : $" Địa điểm \"{Model.Location}\"")
                 </div>
             }
-            <a asp-action="Create" class="btn btn-primary fw-semibold shadow-sm d-flex align-items-center gap-1">
-                <span>➕</span> Đăng tin tuyển dụng
+            <a asp-controller="Job" asp-action="Create" class="btn btn-primary fw-semibold shadow-sm">
+                ➕ Đăng tin tuyển dụng
             </a>
         </div>
     </div>
 
-    @if (!Model.Jobs.Any())
+    <!-- Danh sách việc làm -->
+    @if (Model.Jobs == null || !Model.Jobs.Any())
     {
         <div class="card border-0 shadow-sm py-5 text-center my-4">
             <div class="card-body">
-                <div class="display-1 text-muted mb-3">🔎</div>
+                <div class="display-3 text-muted mb-3">🔎</div>
                 <h5 class="fw-bold text-dark">Không tìm thấy vị trí thực tập phù hợp</h5>
                 <p class="text-muted">Vui lòng thử tìm kiếm bằng từ khóa khác hoặc xóa bớt tiêu chí lọc.</p>
-                <a asp-action="Index" class="btn btn-outline-primary">Xem tất cả việc làm</a>
+                <a asp-controller="Job" asp-action="Index" class="btn btn-outline-primary">Xem tất cả việc làm</a>
             </div>
         </div>
     }
@@ -102,19 +149,19 @@
             @foreach (var job in Model.Jobs)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 border-top border-primary border-3 transition-card">
+                    <div class="card h-100 shadow-sm border-0 border-top border-primary border-3 job-hover-card">
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span class="badge bg-light text-primary border">@job.Major</span>
                                 <span class="badge bg-success-subtle text-success">💰 @job.SalaryRange</span>
                             </div>
                             <h5 class="card-title fw-bold mb-1">
-                                <a asp-action="Detail" asp-route-id="@job.Id" class="text-decoration-none text-dark hover-primary">
+                                <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Id" class="text-decoration-none text-dark job-title-link">
                                     @job.Title
                                 </a>
                             </h5>
                             <h6 class="card-subtitle text-muted mb-3">
-                                🏢 @(job.Company?.CompanyName ?? "Doanh nghiệp")
+                                🏢 @(job.Company?.CompanyName ?? "Doanh nghiệp đối tác")
                             </h6>
 
                             <p class="card-text text-secondary small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
@@ -126,13 +173,14 @@
                                     <span>📍 @job.Location</span>
                                     <span>👥 Chỉ tiêu: <strong>@job.Quantity</strong></span>
                                 </div>
-                                <div class="text-end text-danger small">
+                                <div class="text-end @(job.ExpireDate < DateTime.Now ? "text-danger fw-bold" : "text-muted") small">
                                     ⏳ Hạn nộp: @job.ExpireDate.ToString("dd/MM/yyyy")
+                                    @(job.ExpireDate < DateTime.Now ? "(Đã hết hạn)" : "")
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer bg-transparent border-0 pt-0 pb-3">
-                            <a asp-action="Detail" asp-route-id="@job.Id" class="btn btn-outline-primary w-100 fw-semibold">
+                            <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Id" class="btn btn-outline-primary w-100 fw-semibold">
                                 Xem chi tiết & Ứng tuyển
                             </a>
                         </div>
@@ -142,3 +190,16 @@
         </div>
     }
 </div>
+
+<style>
+    .job-hover-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .job-hover-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12) !important;
+    }
+    .job-title-link:hover {
+        color: #0d6efd !important;
+    }
+</style>
