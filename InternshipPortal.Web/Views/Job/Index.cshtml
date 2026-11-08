@@ -1,205 +1,93 @@
 @model InternshipPortal.Web.Models.ViewModels.JobFilterViewModel
 
 @{
-    ViewData["Title"] = "Cơ hội thực tập doanh nghiệp";
+    ViewData["Title"] = "Danh sách tin tuyển dụng";
 }
 
-<div class="container py-4">
-    <!-- Hero Banner & Filter Card -->
-    <!-- Compact & Modern Hero Search Section -->
-    <div class="hero-search-wrapper mb-4 rounded-4 text-white p-4 p-lg-4 position-relative overflow-hidden shadow-sm">
-        <div class="position-relative z-1">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                <div>
-                    <h2 class="h4 fw-bold mb-1 tracking-tight">Cổng Thông Tin Thực Tập Doanh Nghiệp</h2>
-                    <p class="text-white-50 small mb-0">Khám phá cơ hội thực tập và kết nối cùng các doanh nghiệp uy tín.</p>
+<!-- Thanh tìm kiếm & lọc nhanh -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3 p-md-4">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="keyword" value="@Model?.Keyword" class="form-control border-start-0 ps-0" placeholder="Nhập từ khóa việc làm...">
                 </div>
             </div>
-
-            <!-- Integrated Search Bar -->
-            <form method="get" asp-controller="Job" asp-action="Index" class="hero-search-form bg-white rounded-3 p-2 shadow-sm">
-                <div class="row g-2 align-items-center">
-                    <!-- Ô từ khóa -->
-                    <div class="col-lg-5 col-md-12">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-transparent border-0 text-muted ps-2">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text" name="keyword" class="form-control border-0 shadow-none ps-1" 
-                                   placeholder="Tên vị trí tuyển dụng, kỹ năng..." value="@Model.Keyword" />
-                        </div>
-                    </div>
-
-                    <!-- Ngành nghề -->
-                    <div class="col-lg-3 col-md-6 border-start-lg">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-transparent border-0 text-muted ps-2">
-                                <i class="bi bi-briefcase"></i>
-                            </span>
-                            <select name="major" class="form-select border-0 shadow-none ps-1">
-                                <option value="">Tất cả ngành nghề</option>
-                                @if (Model.AvailableMajors != null)
-                                {
-                                    @foreach (var m in Model.AvailableMajors)
-                                    {
-                                        if (Model.Major == m)
-                                        {
-                                            <option value="@m" selected="selected">@m</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@m">@m</option>
-                                        }
-                                    }
-                                }
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Địa điểm -->
-                    <div class="col-lg-2 col-md-6 border-start-lg">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-transparent border-0 text-muted ps-2">
-                                <i class="bi bi-geo-alt"></i>
-                            </span>
-                            <select name="location" class="form-select border-0 shadow-none ps-1">
-                                <option value="">Tất cả địa điểm</option>
-                                @if (Model.AvailableLocations != null)
-                                {
-                                    @foreach (var loc in Model.AvailableLocations)
-                                    {
-                                        if (Model.Location == loc)
-                                        {
-                                            <option value="@loc" selected="selected">@loc</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@loc">@loc</option>
-                                        }
-                                    }
-                                }
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Nút bấm -->
-                    <div class="col-lg-2 col-md-12 d-flex gap-1">
-                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold py-2 d-flex align-items-center justify-content-center gap-1 rounded-2">
-                            <i class="bi bi-search"></i>
-                            <span>Tìm kiếm</span>
-                        </button>
-                        @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.Major) || !string.IsNullOrEmpty(Model.Location))
+            <div class="col-12 col-md-4">
+                <select name="major" class="form-select">
+                    <option value="">Tất cả</option>
+                    @if (Model?.AvailableMajors != null && Model.AvailableMajors.Any())
+                    {
+                        foreach (var m in Model.AvailableMajors)
                         {
-                            <a asp-controller="Job" asp-action="Index" class="btn btn-light btn-sm text-muted border py-2 px-2" title="Xóa bộ lọc">
-                                <i class="bi bi-x-lg"></i>
-                            </a>
+                            <option value="@m" selected="@(Model.Major == m)">@m</option>
                         }
+                    }
+                    else
+                    {
+                        <option value="CNTT" selected="@(Model?.Major == "CNTT")">CNTT</option>
+                        <option value="Kinh Tế" selected="@(Model?.Major == "Kinh Tế")">Kinh Tế</option>
+                        <option value="Điện Tử" selected="@(Model?.Major == "Điện Tử")">Điện Tử</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Tìm kiếm
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Lưới danh sách việc làm -->
+<div class="row g-3">
+    @if (Model?.Jobs != null && Model.Jobs.Any())
+    {
+        @foreach (var item in Model.Jobs)
+        {
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <div class="card shadow-sm h-100 border-0 rounded-3">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <span class="badge bg-primary">@item.Major</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                @(string.IsNullOrEmpty(item.SalaryRange) ? "Thỏa thuận" : item.SalaryRange)
+                            </span>
+                        </div>
+
+                        <h5 class="card-title fw-bold text-dark text-truncate mb-2" title="@item.Title">
+                            @item.Title
+                        </h5>
+
+                        <div class="text-secondary small mb-3">
+                            <div class="mb-1 text-truncate">
+                                <i class="bi bi-building me-1 text-primary"></i> @(item.Company?.CompanyName ?? "Doanh nghiệp đối tác")
+                            </div>
+                            <div class="mb-1 text-truncate">
+                                <i class="bi bi-geo-alt-fill me-1 text-danger"></i> @item.Location
+                            </div>
+                            <div class="text-muted">
+                                <i class="bi bi-clock me-1"></i> Hạn: @item.ExpireDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-2 border-top">
+                            <a href="@Url.Action("Detail", "Job", new { id = item.Id })" class="btn btn-outline-primary btn-sm w-100 fw-semibold">
+                                Xem chi tiết <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </form>
-
-            <!-- Gợi ý tìm nhanh -->
-            <div class="d-flex align-items-center gap-2 mt-2 pt-1 flex-wrap small text-white-50">
-                <span class="small">Gợi ý tìm nhanh:</span>
-                <a asp-controller="Job" asp-action="Index" asp-route-major="CNTT" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">CNTT</a>
-                <a asp-controller="Job" asp-action="Index" asp-route-location="Hà Nội" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">Hà Nội</a>
-                <a asp-controller="Job" asp-action="Index" asp-route-keyword="React" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">React</a>
-                <a asp-controller="Job" asp-action="Index" asp-route-keyword="Data" class="badge bg-white bg-opacity-25 text-white text-decoration-none hover-badge">Data Engineer</a>
             </div>
-        </div>
-    </div>
-
-    <!-- Tiêu đề & Nút đăng tin -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-            <h4 class="fw-bold mb-0 text-dark d-inline-block">Vị trí tuyển dụng đang mở</h4>
-            <span class="badge bg-secondary-subtle text-secondary fs-6 ms-2">@(Model.Jobs?.Count() ?? 0) việc làm</span>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.Major) || !string.IsNullOrEmpty(Model.Location))
-            {
-                <div class="small text-muted d-none d-md-block">
-                    Kết quả lọc cho:
-                    @(string.IsNullOrEmpty(Model.Keyword) ? "" : $" Từ khóa \"{Model.Keyword}\" |")
-                    @(string.IsNullOrEmpty(Model.Major) ? "" : $" Ngành \"{Model.Major}\" |")
-                    @(string.IsNullOrEmpty(Model.Location) ? "" : $" Địa điểm \"{Model.Location}\"")
-                </div>
-            }
-            <a asp-controller="Job" asp-action="Create" class="btn btn-primary fw-semibold shadow-sm">
-                ➕ Đăng tin tuyển dụng
-            </a>
-        </div>
-    </div>
-
-    <!-- Danh sách việc làm -->
-    @if (Model.Jobs == null || !Model.Jobs.Any())
-    {
-        <div class="card border-0 shadow-sm py-5 text-center my-4">
-            <div class="card-body">
-                <div class="display-3 text-muted mb-3">🔎</div>
-                <h5 class="fw-bold text-dark">Không tìm thấy vị trí thực tập phù hợp</h5>
-                <p class="text-muted">Vui lòng thử tìm kiếm bằng từ khóa khác hoặc xóa bớt tiêu chí lọc.</p>
-                <a asp-controller="Job" asp-action="Index" class="btn btn-outline-primary">Xem tất cả việc làm</a>
-            </div>
-        </div>
+        }
     }
     else
     {
-        <div class="row g-4">
-            @foreach (var job in Model.Jobs)
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 border-top border-primary border-3 job-hover-card">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-light text-primary border">@job.Major</span>
-                                <span class="badge bg-success-subtle text-success">💰 @job.SalaryRange</span>
-                            </div>
-                            <h5 class="card-title fw-bold mb-1">
-                                <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Id" class="text-decoration-none text-dark job-title-link">
-                                    @job.Title
-                                </a>
-                            </h5>
-                            <h6 class="card-subtitle text-muted mb-3">
-                                🏢 @(job.Company?.CompanyName ?? "Doanh nghiệp đối tác")
-                            </h6>
-
-                            <p class="card-text text-secondary small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                                @job.Description
-                            </p>
-
-                            <div class="border-top pt-3 mt-2 small text-muted">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span>📍 @job.Location</span>
-                                    <span>👥 Chỉ tiêu: <strong>@job.Quantity</strong></span>
-                                </div>
-                                <div class="text-end @(job.ExpireDate < DateTime.Now ? "text-danger fw-bold" : "text-muted") small">
-                                    ⏳ Hạn nộp: @job.ExpireDate.ToString("dd/MM/yyyy")
-                                    @(job.ExpireDate < DateTime.Now ? "(Đã hết hạn)" : "")
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent border-0 pt-0 pb-3">
-                            <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Id" class="btn btn-outline-primary w-100 fw-semibold">
-                                Xem chi tiết & Ứng tuyển
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <p class="text-muted mt-2">Hiện chưa có tin tuyển dụng nào phù hợp.</p>
         </div>
     }
 </div>
-
-<style>
-    .job-hover-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .job-hover-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12) !important;
-    }
-    .job-title-link:hover {
-        color: #0d6efd !important;
-    }
-</style>
