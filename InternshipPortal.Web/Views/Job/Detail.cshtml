@@ -1,19 +1,54 @@
 @model InternshipPortal.Web.Models.JobPost
 
 @{
-    ViewData["Title"] = Model?.Title ?? "Chi tiết tuyển dụng";
+    ViewData["Title"] = Model.Title;
+    var salaryText = string.IsNullOrEmpty(Model.SalaryRange) ? "Thỏa thuận" : Model.SalaryRange;
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Tin tuyển dụng</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+    </ol>
+</nav>
+
+<!-- Thông báo TempData -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["WarningMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-x-circle-fill me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
 <div class="row g-4">
     <!-- Cột bên trái: Chi tiết nội dung công việc -->
     <div class="col-12 col-lg-8">
         <div class="card shadow-sm border-0 rounded-3 p-4">
-            <h2 class="fw-bold text-dark mb-3">@Model?.Title</h2>
-            
+            <h2 class="fw-bold text-dark mb-3">@Model.Title</h2>
+
             <div class="d-flex flex-wrap gap-2 mb-4">
-                <span class="badge bg-primary fs-6">@Model?.Major</span>
+                <span class="badge bg-primary fs-6">@Model.Major</span>
                 <span class="badge bg-success-subtle text-success border border-success-subtle fs-6">
-                    <i class="bi bi-cash-stack me-1"></i>@(string.IsNullOrEmpty(Model?.SalaryRange) ? "Thỏa thuận" : Model.SalaryRange)
+                    <i class="bi bi-cash-stack me-1"></i>@salaryText
+                </span>
+                <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary") fs-6">
+                    @(Model.IsActive ? "Đang mở ứng tuyển" : "Đã đóng")
                 </span>
             </div>
 
@@ -21,73 +56,106 @@
                 <h5 class="fw-bold border-bottom pb-2 text-primary">
                     <i class="bi bi-file-earmark-text me-2"></i>Mô tả công việc
                 </h5>
-                <div class="text-secondary lh-base">
-                    @Html.Raw(Model?.Description?.Replace("\n", "<br />") ?? "Chưa có thông tin mô tả.")
-                </div>
+                <div class="text-secondary lh-base" style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(Model.Description) ? "Chưa có thông tin mô tả." : Model.Description)</div>
             </div>
 
             <div class="mb-4">
                 <h5 class="fw-bold border-bottom pb-2 text-primary">
                     <i class="bi bi-check2-circle me-2"></i>Yêu cầu ứng viên
                 </h5>
-                <div class="text-secondary lh-base">
-                    @Html.Raw(Model?.Requirements?.Replace("\n", "<br />") ?? "Chưa có thông tin yêu cầu.")
-                </div>
+                <div class="text-secondary lh-base" style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(Model.Requirements) ? "Chưa có thông tin yêu cầu." : Model.Requirements)</div>
             </div>
 
-            <div class="d-lg-none mt-3">
-                <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
-                    <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
-                </button>
+            <div class="pt-3 border-top d-flex flex-wrap gap-2 align-items-center">
+                @if (Model.IsActive)
+                {
+                    <button type="button" class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
+                        <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-secondary" disabled>Vị trí này đã đóng tuyển dụng</button>
+                }
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>Sửa tin
+                </a>
+                <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-warning">
+                        <i class="bi @(Model.IsActive ? "bi-lock" : "bi-unlock") me-1"></i>@(Model.IsActive ? "Tạm đóng" : "Mở lại")
+                    </button>
+                </form>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-auto">Quay lại</a>
             </div>
         </div>
     </div>
 
     <!-- Cột bên phải: Thanh thông tin tổng quan (sidebar) -->
     <div class="col-12 col-lg-4">
-        <div class="card shadow-sm border-0 rounded-3 p-3 p-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 p-md-4 mb-4">
             <h5 class="fw-bold text-dark mb-3">Thông tin tuyển dụng</h5>
             <ul class="list-unstyled mb-4">
                 <li class="mb-3 d-flex align-items-start">
                     <i class="bi bi-building fs-5 text-primary me-2"></i>
                     <div>
                         <small class="text-muted d-block">Công ty</small>
-                        <span class="fw-semibold text-break">@(Model?.Company?.CompanyName ?? "Doanh nghiệp đối tác")</span>
+                        <span class="fw-semibold text-break">@(Model.Company?.CompanyName ?? "Doanh nghiệp đối tác")</span>
                     </div>
                 </li>
                 <li class="mb-3 d-flex align-items-start">
                     <i class="bi bi-geo-alt fs-5 text-danger me-2"></i>
                     <div>
                         <small class="text-muted d-block">Địa điểm làm việc</small>
-                        <span class="fw-semibold text-break">@Model?.Location</span>
+                        <span class="fw-semibold text-break">@Model.Location</span>
                     </div>
                 </li>
                 <li class="mb-3 d-flex align-items-start">
                     <i class="bi bi-cash fs-5 text-success me-2"></i>
                     <div>
                         <small class="text-muted d-block">Mức lương</small>
-                        <span class="fw-semibold">@Model?.SalaryRange</span>
+                        <span class="fw-semibold">@salaryText</span>
                     </div>
                 </li>
                 <li class="mb-3 d-flex align-items-start">
                     <i class="bi bi-people fs-5 text-info me-2"></i>
                     <div>
                         <small class="text-muted d-block">Số lượng tuyển</small>
-                        <span class="fw-semibold">@(Model?.Quantity ?? 1) chỉ tiêu</span>
+                        <span class="fw-semibold">@Model.Quantity chỉ tiêu</span>
                     </div>
                 </li>
                 <li class="mb-3 d-flex align-items-start">
                     <i class="bi bi-calendar-event fs-5 text-warning me-2"></i>
                     <div>
                         <small class="text-muted d-block">Hạn nộp hồ sơ</small>
-                        <span class="fw-semibold">@Model?.ExpireDate.ToString("dd/MM/yyyy")</span>
+                        <span class="fw-semibold">@Model.ExpireDate.ToString("dd/MM/yyyy")</span>
                     </div>
                 </li>
             </ul>
 
-            <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
-                <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
-            </button>
+            @if (Model.IsActive)
+            {
+                <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
+                    <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
+                </button>
+            }
+        </div>
+
+        <!-- Thông tin doanh nghiệp -->
+        <div class="card shadow-sm border-0 rounded-3 p-3 p-md-4">
+            <h5 class="fw-bold text-dark mb-3">Thông tin doanh nghiệp</h5>
+            <p class="fw-semibold mb-2 text-break">@(Model.Company?.CompanyName ?? "Doanh nghiệp đối tác")</p>
+            <p class="text-muted small mb-2">
+                <i class="bi bi-geo-alt me-1"></i>@(Model.Company?.Address ?? "Đang cập nhật")
+            </p>
+            <p class="text-muted small mb-2 text-break">
+                <i class="bi bi-envelope me-1"></i>@(Model.Company?.ContactEmail ?? "Đang cập nhật")
+            </p>
+            @if (!string.IsNullOrEmpty(Model.Company?.Website))
+            {
+                <p class="small mb-0 text-break">
+                    <i class="bi bi-globe me-1"></i><a href="@Model.Company.Website" target="_blank" rel="noopener" class="text-decoration-none">@Model.Company.Website</a>
+                </p>
+            }
         </div>
     </div>
 </div>
@@ -98,38 +166,45 @@
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title fw-bold" id="applyModalLabel">
-                    <i class="bi bi-pencil-square me-2"></i>Nộp Hồ Sơ Ứng Tuyển
+                    <i class="bi bi-pencil-square me-2"></i>Ứng tuyển: @Model.Title
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" enctype="multipart/form-data">
+            <form asp-action="Apply" method="post" enctype="multipart/form-data">
                 <div class="modal-body p-4">
-                    <input type="hidden" name="JobPostId" value="@Model?.Id" />
+                    <input type="hidden" name="JobPostId" value="@Model.Id" />
+                    <input type="hidden" name="JobTitle" value="@Model.Title" />
+                    <input type="hidden" name="CompanyName" value="@(Model.Company?.CompanyName ?? "Doanh nghiệp")" />
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
-                        <input type="text" name="FullName" class="form-control" placeholder="Nguyễn Văn A" required>
+                        <label class="form-label fw-semibold" for="applyFullName">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" id="applyFullName" name="FullName" class="form-control" placeholder="Nguyễn Văn A" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Mã số sinh viên <span class="text-danger">*</span></label>
-                        <input type="text" name="StudentId" class="form-control" placeholder="VD: 20210001" required>
+                        <label class="form-label fw-semibold" for="applyStudentCode">Mã số sinh viên <span class="text-danger">*</span></label>
+                        <input type="text" id="applyStudentCode" name="StudentCode" class="form-control" placeholder="VD: SV2026001" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                        <input type="email" name="Email" class="form-control" placeholder="sinhvien@school.edu.vn" required>
+                        <label class="form-label fw-semibold" for="applyMajor">Chuyên ngành</label>
+                        <input type="text" id="applyMajor" name="Major" class="form-control" value="@Model.Major">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
-                        <input type="tel" name="PhoneNumber" class="form-control" placeholder="0912345678" required>
+                        <label class="form-label fw-semibold" for="applyEmail">Email <span class="text-danger">*</span></label>
+                        <input type="email" id="applyEmail" name="Email" class="form-control" placeholder="sinhvien@school.edu.vn" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="applyPhone">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="tel" id="applyPhone" name="PhoneNumber" class="form-control" placeholder="0912345678" required>
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label fw-semibold">Đính kèm CV <span class="text-danger">*</span></label>
-                        <input type="file" name="CvFile" class="form-control" accept=".pdf" required>
-                        <div class="form-text text-muted">Chỉ chấp nhận file định dạng .PDF.</div>
+                        <label class="form-label fw-semibold" for="applyCv">Đính kèm CV</label>
+                        <input type="file" id="applyCv" name="CVFile" class="form-control" accept=".pdf,.doc,.docx">
+                        <div class="form-text text-muted">Hỗ trợ .pdf, .doc, .docx (tối đa 10MB).</div>
                     </div>
                 </div>
                 <div class="modal-footer bg-light">

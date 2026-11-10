@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="vi">
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string NavActive(string controller) => currentController == controller ? "active" : "";
+}
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - INTERN PORTAL</title>
-    <!-- Bootstrap 5.3 CDN -->
+    <!-- Bootstrap 5.3 CDN (bản local trong wwwroot/lib là 5.1, thiếu các class *-subtle) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100 bg-light">
     <!-- Header / Navbar -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container">
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-area="" asp-controller="Job" asp-action="Index">
                     <i class="bi bi-mortarboard-fill fs-4"></i>
                     <span>INTERN PORTAL</span>
                 </a>
@@ -25,18 +30,19 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/">Trang chủ</a>
+                            <a class="nav-link @NavActive("Job")" asp-area="" asp-controller="Job" asp-action="Index">Tin tuyển dụng</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Index", "Job")">Tin tuyển dụng</a>
+                            <a class="nav-link @NavActive("Company")" asp-area="" asp-controller="Company" asp-action="Index">Doanh nghiệp</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Doanh nghiệp</a>
+                            <a class="nav-link @NavActive("Application")" asp-area="" asp-controller="Application" asp-action="Index">Quản lý ứng tuyển</a>
                         </li>
                     </ul>
                     <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-light btn-sm px-3">Đăng nhập</a>
-                        <a href="#" class="btn btn-light btn-sm px-3 text-primary fw-semibold">Đăng ký</a>
+                        <a asp-area="" asp-controller="Job" asp-action="Create" class="btn btn-light btn-sm px-3 text-primary fw-semibold">
+                            <i class="bi bi-plus-lg me-1"></i>Đăng tin
+                        </a>
                     </div>
                 </div>
             </div>
@@ -55,8 +61,10 @@
         </div>
     </footer>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
