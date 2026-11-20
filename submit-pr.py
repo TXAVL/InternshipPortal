@@ -259,13 +259,9 @@ def main():
         print(f"     => {pulls[0]['html_url']}")
     else:
         pr_body = (
-            "## 📌 Trau chuốt giao diện Ngày 2
-
-"
-            "- Giao diện Đăng nhập, Đăng ký sinh viên, Từ chối truy cập
-"
-            "- Giao diện Cổng sinh viên, Nhật ký thực tập và Dashboard thống kê
-"
+            "## 📌 Trau chuốt giao diện Ngày 2\n\n"
+            "- Giao diện Đăng nhập, Đăng ký sinh viên, Từ chối truy cập\n"
+            "- Giao diện Cổng sinh viên, Nhật ký thực tập và Dashboard thống kê\n"
             "- Chỉ chỉnh View/CSS, không đổi logic backend"
         )
 
