@@ -221,8 +221,7 @@ def main():
     print(" [2/3] Day ma nguon len GitHub...")
     print("===================================================")
     remote_url, owner, repo = get_repo_slug()
-    branch = sys.argv[1] if len(sys.argv) > 1 else "feature/day-1-views"
-    is_day2 = branch == "feature/day-2-auth-ui"
+    branch = sys.argv[1] if len(sys.argv) > 1 else "feature/day-2-auth-ui"
 
     auth_push_url = f"https://x-access-token:{token}@github.com/{owner}/{repo}.git"
     print(f"Dang day nhanh {branch} len {owner}/{repo}...")
@@ -260,23 +259,21 @@ def main():
         print(f"     => {pulls[0]['html_url']}")
     else:
         pr_body = (
-            "## 📌 Auth Cookie, tài khoản thật & giao diện Ngày 2\n\n"
-            "- Cookie Authentication + UserAccount (PasswordHasher), Login/Register/Logout/AccessDenied\n"
-            "- Cổng Sinh viên, Nhật ký thực tập, Dashboard thống kê\n"
-            "- Phần giao diện Auth/Portal/Dashboard cần Bạn A trau chuốt"
-        ) if is_day2 else (
-            "## 📌 Hoàn thành tầng Data, Seeding & Giao diện Ngày 1\n\n"
-            "- Models: Company, JobPost, StudentProfile, Application\n"
-            "- ApplicationDbContext & DbInitializer (Seeding 2 Company, 3 JobPost)\n"
-            "- Cấu hình LocalDB trong appsettings.json và Program.cs\n"
-            "- JobController (Index, Detail) & Giao diện Views Bootstrap 5"
+            "## 📌 Trau chuốt giao diện Ngày 2
+
+"
+            "- Giao diện Đăng nhập, Đăng ký sinh viên, Từ chối truy cập
+"
+            "- Giao diện Cổng sinh viên, Nhật ký thực tập và Dashboard thống kê
+"
+            "- Chỉ chỉnh View/CSS, không đổi logic backend"
         )
 
         create_status, create_res = http_json(
             f"https://api.github.com/repos/{owner}/{repo}/pulls",
             method="POST",
             data={
-                "title": "feat(auth-ui): Auth, Cổng Sinh viên & Dashboard Ngày 2" if is_day2 else "feat(views): Hoàn thiện giao diện Ngày 1",
+                "title": "feat(auth-ui): Trau chuốt giao diện Auth, Cổng Sinh viên & Dashboard (Ngày 2)",
                 "head": branch,
                 "base": base_branch,
                 "body": pr_body
