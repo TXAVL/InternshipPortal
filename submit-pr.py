@@ -221,7 +221,8 @@ def main():
     print(" [2/3] Day ma nguon len GitHub...")
     print("===================================================")
     remote_url, owner, repo = get_repo_slug()
-    branch = "feature/day-1-views"
+    branch = sys.argv[1] if len(sys.argv) > 1 else "feature/day-1-views"
+    is_day2 = branch == "feature/day-2-auth-ui"
 
     auth_push_url = f"https://x-access-token:{token}@github.com/{owner}/{repo}.git"
     print(f"Dang day nhanh {branch} len {owner}/{repo}...")
@@ -259,6 +260,11 @@ def main():
         print(f"     => {pulls[0]['html_url']}")
     else:
         pr_body = (
+            "## 📌 Auth Cookie, tài khoản thật & giao diện Ngày 2\n\n"
+            "- Cookie Authentication + UserAccount (PasswordHasher), Login/Register/Logout/AccessDenied\n"
+            "- Cổng Sinh viên, Nhật ký thực tập, Dashboard thống kê\n"
+            "- Phần giao diện Auth/Portal/Dashboard cần Bạn A trau chuốt"
+        ) if is_day2 else (
             "## 📌 Hoàn thành tầng Data, Seeding & Giao diện Ngày 1\n\n"
             "- Models: Company, JobPost, StudentProfile, Application\n"
             "- ApplicationDbContext & DbInitializer (Seeding 2 Company, 3 JobPost)\n"
@@ -270,7 +276,7 @@ def main():
             f"https://api.github.com/repos/{owner}/{repo}/pulls",
             method="POST",
             data={
-                "title": "feat(views): Hoàn thiện giao diện Ngày 1",
+                "title": "feat(auth-ui): Auth, Cổng Sinh viên & Dashboard Ngày 2" if is_day2 else "feat(views): Hoàn thiện giao diện Ngày 1",
                 "head": branch,
                 "base": base_branch,
                 "body": pr_body

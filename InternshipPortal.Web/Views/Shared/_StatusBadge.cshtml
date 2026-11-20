@@ -1,0 +1,12 @@
+@model InternshipPortal.Web.Models.ApplicationStatus
+@{
+    var (css, icon, text) = Model switch
+    {
+        ApplicationStatus.Pending => ("bg-warning-subtle text-warning-emphasis border border-warning-subtle", "bi-hourglass-split", "Chờ duyệt"),
+        ApplicationStatus.Interview => ("bg-info-subtle text-info-emphasis border border-info-subtle", "bi-calendar-event", "Mời phỏng vấn"),
+        ApplicationStatus.Accepted => ("bg-success-subtle text-success-emphasis border border-success-subtle", "bi-patch-check-fill", "Trúng tuyển"),
+        ApplicationStatus.Rejected => ("bg-danger-subtle text-danger-emphasis border border-danger-subtle", "bi-x-circle", "Từ chối"),
+        _ => ("bg-secondary-subtle text-secondary-emphasis", "bi-question-circle", Model.ToString())
+    };
+}
+<span class="badge @css status-badge"><i class="bi @icon me-1"></i>@text</span>

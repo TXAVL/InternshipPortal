@@ -23,5 +23,7 @@ public class Application
     public JobPost JobPost { get; set; } = null!;
 
     public StudentProfile StudentProfile { get; set; } = null!;
+
+    public List<WeeklyReport> WeeklyReports { get; set; } = new();
 }
 

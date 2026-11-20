@@ -52,9 +52,12 @@
         Vị trí đang mở
         <span class="badge bg-secondary-subtle text-secondary fs-6 ms-2">@Model.Jobs.Count() việc làm</span>
     </h4>
-    <a asp-action="Create" class="btn btn-primary fw-semibold shadow-sm">
-        <i class="bi bi-plus-lg me-1"></i>Đăng tin tuyển dụng
-    </a>
+    @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Company))
+    {
+        <a asp-action="Create" class="btn btn-primary fw-semibold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i>Đăng tin tuyển dụng
+        </a>
+    }
 </div>
 
 <!-- Lưới danh sách việc làm -->

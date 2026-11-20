@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using InternshipPortal.Web.Infrastructure;
 using InternshipPortal.Web.Models;
 
 namespace InternshipPortal.Web.Controllers;
@@ -13,9 +14,16 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    // Trang chủ điều hướng theo vai trò: Admin -> Dashboard, Sinh viên -> Cổng SV, còn lại -> Tin tuyển dụng
     public IActionResult Index()
     {
-        return RedirectToAction("Index", "Job");
+        return User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value switch
+        {
+            Roles.Admin => RedirectToAction("Index", "Dashboard"),
+            Roles.Student => RedirectToAction("Index", "StudentPortal"),
+            Roles.Company => RedirectToAction("Index", "Application"),
+            _ => RedirectToAction("Index", "Job")
+        };
     }
 
     public IActionResult Privacy()

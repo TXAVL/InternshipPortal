@@ -1,0 +1,113 @@
+@model StudentPortalViewModel
+
+@{
+    ViewData["Title"] = "Cổng sinh viên";
+}
+
+@* Khung xương chức năng: Bạn A trau chuốt giao diện Cổng sinh viên. *@
+<h1 class="h3 fw-bold mb-3">Cổng sinh viên</h1>
+
+<partial name="_Alerts" />
+
+@if (Model.Student == null)
+{
+    <div class="alert alert-warning">Không tìm thấy hồ sơ sinh viên gắn với tài khoản này.</div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 fw-bold mb-1">@Model.Student.FullName</h2>
+            <div class="small text-secondary">
+                Mã SV: <strong>@Model.Student.StudentCode</strong>
+                @if (!string.IsNullOrEmpty(Model.Student.Major)) { <text> · Ngành: @Model.Student.Major</text> }
+                @if (!string.IsNullOrEmpty(Model.Student.Email)) { <text> · @Model.Student.Email</text> }
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h5 fw-bold mb-3">Hồ sơ đã ứng tuyển</h2>
+
+    @if (!Model.Applications.Any())
+    {
+        <p class="text-secondary">
+            Bạn chưa ứng tuyển vị trí nào. <a asp-controller="Job" asp-action="Index">Xem tin tuyển dụng</a>
+        </p>
+    }
+
+    @foreach (var app in Model.Applications)
+    {
+        var nextWeek = app.WeeklyReports.Count == 0 ? 1 : app.WeeklyReports.Max(r => r.WeekNumber) + 1;
+
+        <div class="card border-0 shadow-sm mb-4" id="app-@app.Id">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <div>
+                        <h3 class="h6 fw-bold mb-1">
+                            <a asp-controller="Job" asp-action="Detail" asp-route-id="@app.JobPostId" class="text-decoration-none">@app.JobPost.Title</a>
+                        </h3>
+                        <div class="small text-secondary">@app.JobPost.Company?.CompanyName · Nộp ngày @app.AppliedAt.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <partial name="_StatusBadge" model="app.Status" />
+                </div>
+
+                @if (app.Status == ApplicationStatus.Accepted)
+                {
+                    <hr />
+                    <h4 class="h6 fw-bold">Nhật ký thực tập hàng tuần</h4>
+
+                    @if (!app.WeeklyReports.Any())
+                    {
+                        <p class="small text-secondary">Chưa có báo cáo tuần nào.</p>
+                    }
+
+                    @foreach (var r in app.WeeklyReports.OrderByDescending(r => r.WeekNumber))
+                    {
+                        <div class="border rounded p-3 mb-3 bg-light" id="report-@r.Id">
+                            <div class="fw-semibold mb-1">Tuần @r.WeekNumber <span class="small text-secondary fw-normal">· @r.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</span></div>
+                            <div class="small fw-semibold text-secondary">Công việc đã làm</div>
+                            <div style="white-space: pre-line;">@r.TasksDone</div>
+                            @if (!string.IsNullOrWhiteSpace(r.NextWeekPlan))
+                            {
+                                <div class="small fw-semibold text-secondary mt-2">Kế hoạch tuần tới</div>
+                                <div style="white-space: pre-line;">@r.NextWeekPlan</div>
+                            }
+                            <div class="small fw-semibold text-secondary mt-2">Nhận xét của Khoa / GVHD</div>
+                            @if (string.IsNullOrWhiteSpace(r.MentorFeedback))
+                            {
+                                <div class="small text-secondary">Đang chờ nhận xét.</div>
+                            }
+                            else
+                            {
+                                <div class="text-success-emphasis" style="white-space: pre-line;">@r.MentorFeedback</div>
+                            }
+                            <div class="small fw-semibold text-secondary mt-2">Nhận xét của Doanh nghiệp</div>
+                            @if (string.IsNullOrWhiteSpace(r.CompanyFeedback))
+                            {
+                                <div class="small text-secondary">Đang chờ nhận xét.</div>
+                            }
+                            else
+                            {
+                                <div class="text-success-emphasis" style="white-space: pre-line;">@r.CompanyFeedback</div>
+                            }
+                        </div>
+                    }
+
+                    <form asp-action="SubmitReport" method="post">
+                        <input type="hidden" name="ApplicationId" value="@app.Id" />
+                        <h5 class="h6 fw-bold">Nộp báo cáo Tuần @nextWeek</h5>
+                        <div class="mb-2">
+                            <label for="tasks-@app.Id" class="form-label small fw-semibold">Công việc đã làm *</label>
+                            <textarea id="tasks-@app.Id" name="TasksDone" rows="3" class="form-control" required maxlength="4000"></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label for="plan-@app.Id" class="form-label small fw-semibold">Kế hoạch tuần tới</label>
+                            <textarea id="plan-@app.Id" name="NextWeekPlan" rows="2" class="form-control" maxlength="4000"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Nộp báo cáo Tuần @nextWeek</button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+}

@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InternshipPortal.Web.Data;
+using InternshipPortal.Web.Infrastructure;
 using InternshipPortal.Web.Models;
 using InternshipPortal.Web.Models.ViewModels;
 
@@ -92,24 +94,29 @@ public class JobController : Controller
     }
 
     // GET: /Job/Create
+    [Authorize(Roles = "Admin,Company")]
     public async Task<IActionResult> Create()
     {
-        var companies = await _context.Companies
-            .Where(c => c.IsApproved)
-            .OrderBy(c => c.CompanyName)
-            .ToListAsync();
+        var companies = await GetSelectableCompaniesAsync();
 
         ViewBag.Companies = new SelectList(companies, "Id", "CompanyName");
         return View(new JobPost());
     }
 
     // POST: /Job/Create
+    [Authorize(Roles = "Admin,Company")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(JobPost job)
     {
         ModelState.Remove("Company");
         ModelState.Remove("Applications");
+
+        var ownCompanyId = CurrentCompanyId();
+        if (ownCompanyId.HasValue && job.CompanyId != ownCompanyId.Value)
+        {
+            ModelState.AddModelError(nameof(JobPost.CompanyId), "Doanh nghiệp chỉ được đăng tin cho công ty mình.");
+        }
 
         if (ModelState.IsValid)
         {
@@ -119,16 +126,14 @@ public class JobController : Controller
             return RedirectToAction(nameof(Detail), new { id = job.Id });
         }
 
-        var companies = await _context.Companies
-            .Where(c => c.IsApproved)
-            .OrderBy(c => c.CompanyName)
-            .ToListAsync();
+        var companies = await GetSelectableCompaniesAsync();
 
         ViewBag.Companies = new SelectList(companies, "Id", "CompanyName", job.CompanyId);
         return View(job);
     }
 
     // GET: /Job/Edit/5
+    [Authorize(Roles = "Admin,Company")]
     public async Task<IActionResult> Edit(int id)
     {
         var job = await _context.JobPosts.FindAsync(id);
@@ -137,16 +142,20 @@ public class JobController : Controller
             return NotFound();
         }
 
-        var companies = await _context.Companies
-            .Where(c => c.IsApproved)
-            .OrderBy(c => c.CompanyName)
-            .ToListAsync();
+        var forbidden = ForbidOtherCompany(job.CompanyId, job.Id);
+        if (forbidden != null)
+        {
+            return forbidden;
+        }
+
+        var companies = await GetSelectableCompaniesAsync();
 
         ViewBag.Companies = new SelectList(companies, "Id", "CompanyName", job.CompanyId);
         return View(job);
     }
 
     // POST: /Job/Edit/5
+    [Authorize(Roles = "Admin,Company")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, JobPost job)
@@ -158,6 +167,22 @@ public class JobController : Controller
 
         ModelState.Remove("Company");
         ModelState.Remove("Applications");
+
+        var originalCompanyId = await _context.JobPosts
+            .Where(j => j.Id == id)
+            .Select(j => (int?)j.CompanyId)
+            .FirstOrDefaultAsync();
+        if (originalCompanyId == null)
+        {
+            return NotFound();
+        }
+
+        var forbidden = ForbidOtherCompany(originalCompanyId.Value, id)
+                        ?? ForbidOtherCompany(job.CompanyId, id);
+        if (forbidden != null)
+        {
+            return forbidden;
+        }
 
         if (ModelState.IsValid)
         {
@@ -178,16 +203,14 @@ public class JobController : Controller
             }
         }
 
-        var companies = await _context.Companies
-            .Where(c => c.IsApproved)
-            .OrderBy(c => c.CompanyName)
-            .ToListAsync();
+        var companies = await GetSelectableCompaniesAsync();
 
         ViewBag.Companies = new SelectList(companies, "Id", "CompanyName", job.CompanyId);
         return View(job);
     }
 
     // POST: /Job/ToggleStatus/5
+    [Authorize(Roles = "Admin,Company")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleStatus(int id)
@@ -196,6 +219,12 @@ public class JobController : Controller
         if (job == null)
         {
             return NotFound();
+        }
+
+        var forbidden = ForbidOtherCompany(job.CompanyId, job.Id);
+        if (forbidden != null)
+        {
+            return forbidden;
         }
 
         job.IsActive = !job.IsActive;
@@ -213,6 +242,12 @@ public class JobController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Apply(ApplyJobViewModel model)
     {
+        if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Company))
+        {
+            TempData["WarningMessage"] = "Tài khoản Khoa / Doanh nghiệp không nộp hồ sơ ứng tuyển. Hãy dùng tài khoản sinh viên.";
+            return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+        }
+
         var job = await _context.JobPosts
             .Include(j => j.Company)
             .FirstOrDefaultAsync(j => j.Id == model.JobPostId);
@@ -319,5 +354,31 @@ public class JobController : Controller
 
         TempData["SuccessMessage"] = $"Nộp hồ sơ ứng tuyển vị trí '{job.Title}' thành công! Hồ sơ của bạn đã được chuyển tới {job.Company?.CompanyName}.";
         return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+    }
+
+    /// <summary>Doanh nghiệp chỉ được đăng/sửa tin của công ty mình; Admin chọn mọi công ty đã duyệt.</summary>
+    private async Task<List<Company>> GetSelectableCompaniesAsync()
+    {
+        var companyId = CurrentCompanyId();
+        return await _context.Companies
+            .Where(c => c.IsApproved && (!companyId.HasValue || c.Id == companyId.Value))
+            .OrderBy(c => c.CompanyName)
+            .ToListAsync();
+    }
+
+    private int? CurrentCompanyId()
+    {
+        return User.GetCompanyScope();
+    }
+
+    private IActionResult? ForbidOtherCompany(int jobCompanyId, int jobId)
+    {
+        var companyId = CurrentCompanyId();
+        if (companyId.HasValue && jobCompanyId != companyId.Value)
+        {
+            TempData["ErrorMessage"] = "Doanh nghiệp chỉ được quản lý tin tuyển dụng của công ty mình.";
+            return RedirectToAction(nameof(Detail), new { id = jobId });
+        }
+        return null;
     }
 }

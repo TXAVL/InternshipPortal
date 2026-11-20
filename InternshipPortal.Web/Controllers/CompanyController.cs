@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InternshipPortal.Web.Data;
+using InternshipPortal.Web.Infrastructure;
 using InternshipPortal.Web.Models;
 
 namespace InternshipPortal.Web.Controllers;
@@ -54,12 +56,14 @@ public class CompanyController : Controller
     }
 
     // GET: /Company/Create
+    [Authorize(Roles = Roles.Admin)]
     public IActionResult Create()
     {
         return View(new Company());
     }
 
     // POST: /Company/Create
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Company company)
@@ -78,6 +82,7 @@ public class CompanyController : Controller
     }
 
     // GET: /Company/Edit/5
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Edit(int id)
     {
         var company = await _context.Companies.FindAsync(id);
@@ -90,6 +95,7 @@ public class CompanyController : Controller
     }
 
     // POST: /Company/Edit/5
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Company company)
@@ -124,6 +130,7 @@ public class CompanyController : Controller
     }
 
     // POST: /Company/ToggleApproval/5
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleApproval(int id)

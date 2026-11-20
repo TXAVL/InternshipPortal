@@ -1,0 +1,61 @@
+@model IEnumerable<WeeklyReport>
+
+@{
+    ViewData["Title"] = "Nhật ký thực tập";
+}
+
+@* Khung xương chức năng: Bạn A trau chuốt giao diện. *@
+@{
+    var isAdmin = User.IsInRole(Roles.Admin);
+    var myLabel = isAdmin ? "Nhận xét của bạn (Khoa / GVHD)" : "Nhận xét của bạn (Doanh nghiệp)";
+}
+
+<h1 class="h3 fw-bold mb-3">Nhật ký thực tập sinh viên</h1>
+
+<partial name="_Alerts" />
+
+@if (!Model.Any())
+{
+    <p class="text-secondary">Chưa có sinh viên nào nộp nhật ký thực tập.</p>
+}
+
+@foreach (var r in Model)
+{
+    <div class="card border-0 shadow-sm mb-3" id="report-@r.Id">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                <div>
+                    <strong>@r.Application.StudentProfile.FullName</strong>
+                    <span class="small text-secondary">(@r.Application.StudentProfile.StudentCode)</span>
+                    <div class="small text-secondary">@r.Application.JobPost.Title · @r.Application.JobPost.Company?.CompanyName</div>
+                </div>
+                <div class="small text-secondary">Tuần @r.WeekNumber · @r.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="small fw-semibold text-secondary">Công việc đã làm</div>
+            <div style="white-space: pre-line;">@r.TasksDone</div>
+            @if (!string.IsNullOrWhiteSpace(r.NextWeekPlan))
+            {
+                <div class="small fw-semibold text-secondary mt-2">Kế hoạch tuần tới</div>
+                <div style="white-space: pre-line;">@r.NextWeekPlan</div>
+            }
+
+            @* Hai nhận xét độc lập: Khoa/GVHD (Admin) và Doanh nghiệp (Company) *@
+            <div class="small fw-semibold text-secondary mt-3">Nhận xét của Khoa / GVHD</div>
+            <div style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(r.MentorFeedback) ? "Chưa có" : r.MentorFeedback)</div>
+            <div class="small fw-semibold text-secondary mt-2">Nhận xét của Doanh nghiệp</div>
+            <div style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(r.CompanyFeedback) ? "Chưa có" : r.CompanyFeedback)</div>
+
+            @{ var myFeedback = isAdmin ? r.MentorFeedback : r.CompanyFeedback; }
+            @* Đã có nhận xét của mình: thu gọn form, bấm để sửa. Chưa có: mở sẵn form. *@
+            <details class="mt-3" open="@string.IsNullOrWhiteSpace(myFeedback)">
+            <summary class="small fw-semibold">@(string.IsNullOrWhiteSpace(myFeedback) ? "Viết nhận xét" : "Sửa nhận xét của bạn")</summary>
+            <form asp-action="AddFeedback" method="post" class="mt-2">
+                <input type="hidden" name="reportId" value="@r.Id" />
+                <label for="feedback-@r.Id" class="form-label small fw-semibold">@myLabel</label>
+                <textarea id="feedback-@r.Id" name="feedback" rows="2" class="form-control" required>@myFeedback</textarea>
+                <button type="submit" class="btn btn-sm btn-primary mt-2">Lưu nhận xét</button>
+            </form>
+            </details>
+        </div>
+    </div>
+}

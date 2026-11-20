@@ -1,0 +1,44 @@
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+@* Khung xương: form đăng nhập duy nhất. Bạn A trau chuốt giao diện. *@
+<div class="row justify-content-center py-4">
+    <div class="col-12 col-md-7 col-lg-5">
+        <partial name="_Alerts" />
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h4 fw-bold mb-3">Đăng nhập</h1>
+
+                <form asp-action="Login" method="post" novalidate>
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-semibold small"></label>
+                        <input asp-for="Username" type="text" class="form-control" autocomplete="username" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label fw-semibold small"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-semibold">Đăng nhập</button>
+                </form>
+
+                <p class="small text-secondary text-center mt-3 mb-0">
+                    Sinh viên chưa có tài khoản?
+                    <a asp-action="Register">Đăng ký tài khoản sinh viên</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,93 @@
+@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Tổng quan thực tập";
+    var culture = System.Globalization.CultureInfo.InvariantCulture;
+    var statuses = new (ApplicationStatus Status, string Label)[]
+    {
+        (ApplicationStatus.Pending, "Chờ duyệt"),
+        (ApplicationStatus.Interview, "Mời phỏng vấn"),
+        (ApplicationStatus.Accepted, "Trúng tuyển"),
+        (ApplicationStatus.Rejected, "Từ chối")
+    };
+}
+
+@* Khung xương: chỉ hiển thị số liệu thật từ CSDL bằng Bootstrap thuần. Bạn A trau chuốt giao diện + biểu đồ. *@
+<h1 class="h3 fw-bold mb-3">Tổng quan thực tập</h1>
+
+<partial name="_Alerts" />
+
+<div class="mb-4">
+    <a asp-controller="Company" asp-action="Index" class="btn btn-outline-primary">Duyệt doanh nghiệp</a>
+    <a asp-controller="Application" asp-action="ExportExcel" class="btn btn-success">Xuất Excel hồ sơ</a>
+</div>
+
+<h2 class="h5 fw-bold">Chỉ số tổng hợp</h2>
+<table class="table table-bordered bg-white mb-4">
+    <tbody>
+        <tr><th scope="row">Tổng số doanh nghiệp</th><td>@Model.TotalCompanies (đã duyệt: @Model.ApprovedCompanies)</td></tr>
+        <tr><th scope="row">Tổng số tin tuyển dụng</th><td>@Model.TotalJobPosts (đang mở: @Model.ActiveJobPosts)</td></tr>
+        <tr><th scope="row">Tổng số hồ sơ ứng tuyển</th><td>@Model.TotalApplications (từ @Model.TotalStudentsApplied sinh viên)</td></tr>
+        <tr><th scope="row">Số SV đã trúng tuyển</th><td>@Model.AcceptedStudents</td></tr>
+        <tr><th scope="row">Tỷ lệ có nơi thực tập</th><td>@Model.PlacementRate.ToString("0.#", culture)%</td></tr>
+    </tbody>
+</table>
+
+<h2 class="h5 fw-bold">Hồ sơ theo trạng thái</h2>
+<table class="table table-bordered bg-white mb-4">
+    <thead><tr><th>Trạng thái</th><th>Số hồ sơ</th><th>Tỷ lệ</th></tr></thead>
+    <tbody>
+        @foreach (var s in statuses)
+        {
+            <tr>
+                <td>@s.Label</td>
+                <td>@Model.CountOf(s.Status)</td>
+                <td>@Model.PercentOf(s.Status).ToString("0", culture)%</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 fw-bold">Hồ sơ theo doanh nghiệp</h2>
+<table class="table table-bordered bg-white mb-4">
+    <thead><tr><th>Doanh nghiệp</th><th>Tin tuyển dụng</th><th>Hồ sơ</th><th>Trúng tuyển</th></tr></thead>
+    <tbody>
+        @foreach (var c in Model.CompanyStats)
+        {
+            <tr>
+                <td>
+                    <a asp-controller="Company" asp-action="Detail" asp-route-id="@c.CompanyId">@c.CompanyName</a>
+                    @if (!c.IsApproved) { <text>(chưa duyệt)</text> }
+                </td>
+                <td>@c.JobPosts</td>
+                <td>@c.Applications</td>
+                <td>@c.Accepted</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 fw-bold">Nhật ký thực tập mới nộp (@Model.ReportsAwaitingFeedback chờ nhận xét)</h2>
+@if (!Model.RecentReports.Any())
+{
+    <p class="text-secondary">Chưa có sinh viên nào nộp nhật ký thực tập.</p>
+}
+else
+{
+    <table class="table table-bordered bg-white">
+        <thead><tr><th>Sinh viên</th><th>Vị trí</th><th>Tuần</th><th>Ngày nộp</th><th>Nhận xét</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var r in Model.RecentReports)
+            {
+                <tr>
+                    <td>@r.Application.StudentProfile.FullName (@r.Application.StudentProfile.StudentCode)</td>
+                    <td>@r.Application.JobPost.Title – @r.Application.JobPost.Company?.CompanyName</td>
+                    <td>@r.WeekNumber</td>
+                    <td>@r.SubmittedAt.ToString("dd/MM/yyyy")</td>
+                    <td>@(string.IsNullOrWhiteSpace(r.MentorFeedback) && string.IsNullOrWhiteSpace(r.CompanyFeedback) ? "Chờ nhận xét" : "Đã nhận xét")</td>
+                    <td><a asp-controller="Report" asp-action="Index" asp-fragment="report-@r.Id">Mở</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

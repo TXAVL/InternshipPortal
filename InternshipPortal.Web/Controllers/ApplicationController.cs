@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClosedXML.Excel;
 using InternshipPortal.Web.Data;
+using InternshipPortal.Web.Infrastructure;
 using InternshipPortal.Web.Models;
 
 namespace InternshipPortal.Web.Controllers;
@@ -16,6 +18,7 @@ public class ApplicationController : Controller
     }
 
     // GET: /Application
+    [Authorize(Roles = "Admin,Company")]
     public async Task<IActionResult> Index(int? jobPostId, ApplicationStatus? status, string? search)
     {
         var query = _context.Applications
@@ -23,6 +26,13 @@ public class ApplicationController : Controller
             .Include(a => a.JobPost)
                 .ThenInclude(j => j.Company)
             .AsQueryable();
+
+        // Doanh nghiệp chỉ thấy hồ sơ ứng tuyển vào tin của công ty mình
+        var companyId = CurrentCompanyId();
+        if (companyId.HasValue)
+        {
+            query = query.Where(a => a.JobPost.CompanyId == companyId.Value);
+        }
 
         if (jobPostId.HasValue && jobPostId.Value > 0)
         {
@@ -49,7 +59,10 @@ public class ApplicationController : Controller
             .OrderByDescending(a => a.AppliedAt)
             .ToListAsync();
 
-        ViewBag.JobPosts = await _context.JobPosts.OrderBy(j => j.Title).ToListAsync();
+        ViewBag.JobPosts = await _context.JobPosts
+            .Where(j => !companyId.HasValue || j.CompanyId == companyId.Value)
+            .OrderBy(j => j.Title)
+            .ToListAsync();
         ViewBag.SelectedJobPostId = jobPostId;
         ViewBag.SelectedStatus = status;
         ViewBag.SearchTerm = search;
@@ -60,12 +73,22 @@ public class ApplicationController : Controller
     // POST: /Application/UpdateStatus
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Company")]
     public async Task<IActionResult> UpdateStatus(int id, ApplicationStatus status)
     {
-        var app = await _context.Applications.FindAsync(id);
+        var app = await _context.Applications
+            .Include(a => a.JobPost)
+            .FirstOrDefaultAsync(a => a.Id == id);
         if (app == null)
         {
             return NotFound();
+        }
+
+        var companyId = CurrentCompanyId();
+        if (companyId.HasValue && app.JobPost.CompanyId != companyId.Value)
+        {
+            TempData["ErrorMessage"] = "Doanh nghiệp chỉ được duyệt hồ sơ ứng tuyển vào tin của công ty mình.";
+            return RedirectToAction(nameof(Index));
         }
 
         app.Status = status;
@@ -76,6 +99,7 @@ public class ApplicationController : Controller
     }
 
     // GET: /Application/ExportExcel
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> ExportExcel(int? jobPostId, ApplicationStatus? status)
     {
         var query = _context.Applications
@@ -200,6 +224,11 @@ public class ApplicationController : Controller
                 return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
         }
+    }
+
+    private int? CurrentCompanyId()
+    {
+        return User.GetCompanyScope();
     }
 
     private static string GetStatusDisplayName(ApplicationStatus status) => status switch

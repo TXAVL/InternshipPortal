@@ -3,6 +3,10 @@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string NavActive(string controller) => currentController == controller ? "active" : "";
+    var isAdmin = User.IsInRole(Roles.Admin);
+    var isCompany = User.IsInRole(Roles.Company);
+    var isStudent = User.IsInRole(Roles.Student);
+    var isStaff = isAdmin || isCompany;
 }
 <head>
     <meta charset="utf-8" />
@@ -19,7 +23,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container">
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-area="" asp-controller="Job" asp-action="Index">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-mortarboard-fill fs-4"></i>
                     <span>INTERN PORTAL</span>
                 </a>
@@ -29,20 +33,45 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @NavActive("Dashboard")" asp-area="" asp-controller="Dashboard" asp-action="Index">Tổng quan</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link @NavActive("Job")" asp-area="" asp-controller="Job" asp-action="Index">Tin tuyển dụng</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @NavActive("Company")" asp-area="" asp-controller="Company" asp-action="Index">Doanh nghiệp</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @NavActive("Application")" asp-area="" asp-controller="Application" asp-action="Index">Quản lý ứng tuyển</a>
-                        </li>
+                        @if (isStaff)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @NavActive("Application")" asp-area="" asp-controller="Application" asp-action="Index">Quản lý ứng tuyển</a>
+                            </li>
+                        }
+                        @if (isStaff)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @NavActive("Report")" asp-area="" asp-controller="Report" asp-action="Index">Nhật ký thực tập</a>
+                            </li>
+                        }
+                        @if (isStudent)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @NavActive("StudentPortal")" asp-area="" asp-controller="StudentPortal" asp-action="Index">Cổng sinh viên</a>
+                            </li>
+                        }
                     </ul>
-                    <div class="d-flex gap-2">
-                        <a asp-area="" asp-controller="Job" asp-action="Create" class="btn btn-light btn-sm px-3 text-primary fw-semibold">
-                            <i class="bi bi-plus-lg me-1"></i>Đăng tin
-                        </a>
+                    <div class="d-flex flex-wrap align-items-center gap-2 pb-2 pb-lg-0">
+                        @if (isStaff)
+                        {
+                            <a asp-area="" asp-controller="Job" asp-action="Create" class="btn btn-outline-light btn-sm px-3 fw-semibold">
+                                <i class="bi bi-plus-lg me-1"></i>Đăng tin
+                            </a>
+                        }
+                        <partial name="_UserMenu" />
                     </div>
                 </div>
             </div>

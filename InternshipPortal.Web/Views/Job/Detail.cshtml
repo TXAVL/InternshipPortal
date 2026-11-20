@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = Model.Title;
     var salaryText = string.IsNullOrEmpty(Model.SalaryRange) ? "Thỏa thuận" : Model.SalaryRange;
+    var isAdmin = User.IsInRole(Roles.Admin);
+    // Admin / Doanh nghiệp không nộp hồ sơ; chỉ Admin hoặc đúng công ty chủ tin mới được sửa / đóng tin
+    var canApply = !isAdmin && !User.IsInRole(Roles.Company);
+    var canManage = isAdmin || (User.IsInRole(Roles.Company) && User.GetRelatedId() == Model.CompanyId);
 }
 
 <!-- Breadcrumb -->
@@ -67,7 +71,10 @@
             </div>
 
             <div class="pt-3 border-top d-flex flex-wrap gap-2 align-items-center">
-                @if (Model.IsActive)
+                @if (!canApply)
+                {
+                }
+                else if (Model.IsActive)
                 {
                     <button type="button" class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
                         <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
@@ -77,14 +84,17 @@
                 {
                     <button type="button" class="btn btn-secondary" disabled>Vị trí này đã đóng tuyển dụng</button>
                 }
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
-                    <i class="bi bi-pencil me-1"></i>Sửa tin
-                </a>
-                <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-outline-warning">
-                        <i class="bi @(Model.IsActive ? "bi-lock" : "bi-unlock") me-1"></i>@(Model.IsActive ? "Tạm đóng" : "Mở lại")
-                    </button>
-                </form>
+                @if (canManage)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Sửa tin
+                    </a>
+                    <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-warning">
+                            <i class="bi @(Model.IsActive ? "bi-lock" : "bi-unlock") me-1"></i>@(Model.IsActive ? "Tạm đóng" : "Mở lại")
+                        </button>
+                    </form>
+                }
                 <a asp-action="Index" class="btn btn-outline-secondary ms-auto">Quay lại</a>
             </div>
         </div>
@@ -132,7 +142,7 @@
                 </li>
             </ul>
 
-            @if (Model.IsActive)
+            @if (canApply && Model.IsActive)
             {
                 <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
                     <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
@@ -160,6 +170,8 @@
     </div>
 </div>
 
+@if (canApply)
+{
 <!-- Modal Nộp Hồ Sơ Ứng Tuyển -->
 <div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -215,3 +227,4 @@
         </div>
     </div>
 </div>
+}

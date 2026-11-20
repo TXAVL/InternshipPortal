@@ -16,9 +16,12 @@
             <p class="text-muted mb-0">Theo dõi, xét duyệt hồ sơ sinh viên và xuất báo cáo danh sách ứng tuyển.</p>
         </div>
         <div class="d-flex gap-2">
-            <a asp-action="ExportExcel" asp-route-jobPostId="@selectedJobPostId" asp-route-status="@selectedStatus" class="btn btn-success fw-semibold shadow-sm d-flex align-items-center gap-2">
-                <span>📊</span> Xuất Báo Cáo Excel (.xlsx)
-            </a>
+            @if (User.IsInRole(Roles.Admin))
+            {
+                <a asp-action="ExportExcel" asp-route-jobPostId="@selectedJobPostId" asp-route-status="@selectedStatus" class="btn btn-success fw-semibold shadow-sm d-flex align-items-center gap-2">
+                    <span>📊</span> Xuất Báo Cáo Excel (.xlsx)
+                </a>
+            }
             <a asp-controller="Job" asp-action="Index" class="btn btn-outline-primary d-flex align-items-center gap-1">
                 <span>💼</span> Xem trang việc làm
             </a>
@@ -26,13 +29,7 @@
     </div>
 
     <!-- Alert thông báo -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <strong>✓ Thành công:</strong> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+    <partial name="_Alerts" />
 
     <!-- Thanh lọc và tìm kiếm -->
     <div class="card border-0 shadow-sm mb-4">

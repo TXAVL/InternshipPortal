@@ -1,13 +1,28 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using InternshipPortal.Web.Models;
 
 namespace InternshipPortal.Web.Data;
 
 public static class DbInitializer
 {
+    private const string TxaCompanyName = "TXA Studio";
+    private const string DefaultPassword = "123456";
+
     public static void Initialize(ApplicationDbContext context)
     {
         context.Database.EnsureCreated();
 
+        // DB tạo từ Ngày 1 đã tồn tại nên EnsureCreated() không thêm bảng mới -> tự bổ sung bảng Ngày 2
+        EnsureNewTables(context);
+
+        SeedCompaniesAndJobs(context);
+        SeedTxaStudio(context);
+        SeedAccounts(context);
+    }
+
+    private static void SeedCompaniesAndJobs(ApplicationDbContext context)
+    {
         if (context.Companies.Any())
         {
             return;
@@ -79,5 +94,163 @@ public static class DbInitializer
         context.JobPosts.AddRange(jobPosts);
         context.SaveChanges();
     }
-}
 
+    private static void EnsureNewTables(ApplicationDbContext context)
+    {
+        context.Database.ExecuteSqlRaw(@"
+IF OBJECT_ID(N'[dbo].[WeeklyReports]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[WeeklyReports] (
+        [Id] INT IDENTITY(1,1) NOT NULL CONSTRAINT [PK_WeeklyReports] PRIMARY KEY,
+        [ApplicationId] INT NOT NULL,
+        [WeekNumber] INT NOT NULL,
+        [TasksDone] NVARCHAR(MAX) NOT NULL,
+        [NextWeekPlan] NVARCHAR(MAX) NOT NULL,
+        [MentorFeedback] NVARCHAR(MAX) NULL,
+        [CompanyFeedback] NVARCHAR(MAX) NULL,
+        [SubmittedAt] DATETIME2 NOT NULL,
+        CONSTRAINT [FK_WeeklyReports_Applications_ApplicationId] FOREIGN KEY ([ApplicationId])
+            REFERENCES [dbo].[Applications] ([Id]) ON DELETE CASCADE
+    );
+    CREATE UNIQUE INDEX [IX_WeeklyReports_ApplicationId_WeekNumber]
+        ON [dbo].[WeeklyReports] ([ApplicationId], [WeekNumber]);
+END
+
+IF OBJECT_ID(N'[dbo].[WeeklyReports]', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.WeeklyReports', N'CompanyFeedback') IS NULL
+    ALTER TABLE [dbo].[WeeklyReports] ADD [CompanyFeedback] NVARCHAR(MAX) NULL;
+
+IF OBJECT_ID(N'[dbo].[UserAccounts]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[UserAccounts] (
+        [Id] INT IDENTITY(1,1) NOT NULL CONSTRAINT [PK_UserAccounts] PRIMARY KEY,
+        [Username] NVARCHAR(256) NOT NULL,
+        [PasswordHash] NVARCHAR(MAX) NOT NULL,
+        [FullName] NVARCHAR(MAX) NOT NULL,
+        [Role] NVARCHAR(20) NOT NULL,
+        [RelatedId] INT NULL
+    );
+    CREATE UNIQUE INDEX [IX_UserAccounts_Username] ON [dbo].[UserAccounts] ([Username]);
+END");
+    }
+
+    /// <summary>Công ty TXA Studio + tin tuyển dụng thực tập (idempotent, chạy được trên DB cũ).</summary>
+    private static void SeedTxaStudio(ApplicationDbContext context)
+    {
+        var txa = context.Companies.FirstOrDefault(c => c.CompanyName == TxaCompanyName);
+        if (txa == null)
+        {
+            txa = new Company
+            {
+                CompanyName = TxaCompanyName,
+                Address = "Hà Nội",
+                Website = "txastudio.click",
+                ContactEmail = "hr@txastudio.click",
+                IsApproved = true
+            };
+            context.Companies.Add(txa);
+            context.SaveChanges();
+        }
+
+        if (!context.JobPosts.Any(j => j.CompanyId == txa.Id))
+        {
+            context.JobPosts.Add(new JobPost
+            {
+                CompanyId = txa.Id,
+                Title = "Thực tập sinh Lập trình Web ASP.NET Core",
+                Major = "CNTT",
+                Location = "Hà Nội",
+                Description = "Tham gia phát triển các dự án web nội bộ của TXA Studio bằng ASP.NET Core MVC, EF Core và SQL Server dưới sự hướng dẫn của mentor.",
+                Requirements = "Sinh viên năm 3, 4 chuyên ngành CNTT. Nắm C#, OOP, SQL cơ bản. Chủ động, biết làm việc nhóm với Git.",
+                SalaryRange = "3 - 5 triệu",
+                Quantity = 3,
+                ExpireDate = DateTime.Now.AddDays(60),
+                IsActive = true
+            });
+            context.SaveChanges();
+        }
+    }
+
+    /// <summary>
+    /// 3 tài khoản thật (mật khẩu chung "123456", đã băm bằng PasswordHasher):
+    /// admin@tdu.vn (Admin), hr@txastudio.click (Company), test (Student - đã Accepted + báo cáo Tuần 1).
+    /// </summary>
+    private static void SeedAccounts(ApplicationDbContext context)
+    {
+        var hasher = new PasswordHasher<UserAccount>();
+
+        UserAccount NewAccount(string username, string fullName, string role, int? relatedId)
+        {
+            var account = new UserAccount { Username = username, FullName = fullName, Role = role, RelatedId = relatedId };
+            account.PasswordHash = hasher.HashPassword(account, DefaultPassword);
+            return account;
+        }
+
+        if (!context.UserAccounts.Any(u => u.Username == "admin@tdu.vn"))
+        {
+            context.UserAccounts.Add(NewAccount("admin@tdu.vn", "Ban Chủ Nhiệm Khoa", Roles.Admin, null));
+        }
+
+        var txa = context.Companies.FirstOrDefault(c => c.CompanyName == TxaCompanyName);
+        if (txa != null && !context.UserAccounts.Any(u => u.Username == "hr@txastudio.click"))
+        {
+            context.UserAccounts.Add(NewAccount("hr@txastudio.click", "HR TXA Studio", Roles.Company, txa.Id));
+        }
+
+        context.SaveChanges();
+
+        if (txa == null || context.UserAccounts.Any(u => u.Username == "test"))
+        {
+            return;
+        }
+
+        var student = context.StudentProfiles.FirstOrDefault(s => s.StudentCode == "test");
+        if (student == null)
+        {
+            student = new StudentProfile
+            {
+                StudentCode = "test",
+                FullName = "Sinh Viên Test",
+                Major = "CNTT",
+                Email = "test@tdu.vn",
+                PhoneNumber = "0900000000"
+            };
+            context.StudentProfiles.Add(student);
+            context.SaveChanges();
+        }
+
+        var job = context.JobPosts.Where(j => j.CompanyId == txa.Id).OrderBy(j => j.Id).First();
+        var application = context.Applications
+            .FirstOrDefault(a => a.StudentProfileId == student.Id && a.JobPostId == job.Id);
+        if (application == null)
+        {
+            application = new Application
+            {
+                JobPostId = job.Id,
+                StudentProfileId = student.Id,
+                AppliedAt = DateTime.Now.AddDays(-14),
+                Status = ApplicationStatus.Accepted
+            };
+            context.Applications.Add(application);
+            context.SaveChanges();
+        }
+
+        if (!context.WeeklyReports.Any(r => r.ApplicationId == application.Id && r.WeekNumber == 1))
+        {
+            context.WeeklyReports.Add(new WeeklyReport
+            {
+                ApplicationId = application.Id,
+                WeekNumber = 1,
+                TasksDone = "Cài đặt môi trường Visual Studio 2022, SQL Server, làm quen quy trình Git của nhóm. "
+                          + "Hoàn thành bài onboarding: xây dựng CRUD đơn giản với ASP.NET Core MVC và EF Core.",
+                NextWeekPlan = "Nhận task đầu tiên trong sprint, tìm hiểu Dependency Injection và viết unit test.",
+                MentorFeedback = "Em hoàn thành bài onboarding đúng hạn, chủ động hỏi khi vướng. "
+                               + "Tuần tới chú ý đặt tên biến rõ ràng và viết commit message theo quy ước của nhóm.",
+                CompanyFeedback = "Mentor tại TXA Studio: em làm quen quy trình nhanh, tuần sau bắt đầu nhận task thật trong sprint.",
+                SubmittedAt = DateTime.Now.AddDays(-3)
+            });
+        }
+
+        context.UserAccounts.Add(NewAccount("test", "Sinh Viên Test", Roles.Student, student.Id));
+        context.SaveChanges();
+    }
+}

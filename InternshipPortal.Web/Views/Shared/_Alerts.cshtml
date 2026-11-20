@@ -1,0 +1,20 @@
+@* Hiển thị thông báo TempData chung (Success / Warning / Error) *@
+@{
+    var alerts = new (string Key, string Css, string Icon)[]
+    {
+        ("SuccessMessage", "alert-success", "bi-check-circle-fill"),
+        ("WarningMessage", "alert-warning", "bi-exclamation-triangle-fill"),
+        ("ErrorMessage", "alert-danger", "bi-x-circle-fill")
+    };
+}
+@foreach (var a in alerts)
+{
+    if (TempData[a.Key] is string message && !string.IsNullOrEmpty(message))
+    {
+        <div class="alert @a.Css alert-dismissible fade show shadow-sm d-flex align-items-start gap-2" role="alert">
+            <i class="bi @a.Icon mt-1"></i>
+            <div>@message</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    }
+}
