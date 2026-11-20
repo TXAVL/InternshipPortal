@@ -41,4 +41,4 @@ Bạn B clone project về để làm đẹp giao diện Ngày 1:
    - `InternshipPortal.Web/Views/Job/Index.cshtml`: Giao diện danh sách tin tuyển dụng, banner tìm kiếm, thẻ card việc làm.
    - `InternshipPortal.Web/Views/Job/Detail.cshtml`: Giao diện chi tiết việc làm, thông tin công ty, popup modal nộp đơn.
    - `InternshipPortal.Web/wwwroot/css/site.css`: Viết thêm CSS, chỉnh màu sắc, hiệu ứng nút bấm.
-4. **Nộp bài**: Sau khi hoàn thành giao diện, chỉ cần nhấp đúp file **`submit-work.bat`** ở thư mục gốc để tự động build và đẩy lên nhánh `feature/day-1-views` trên GitHub!
+4. **Nộp bài**: Sau khi hoàn thành giao diện, chỉ cần nhấp đúp file **`submit-work-day2.bat`** ở thư mục gốc để tự động build và đẩy lên nhánh `feature/day-2-auth-ui` trên GitHub (kèm tạo Pull Request vào `main`)!
