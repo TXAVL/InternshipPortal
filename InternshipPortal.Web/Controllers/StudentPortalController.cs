@@ -76,6 +76,13 @@ public class StudentPortalController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        // Mỗi tuần lịch chỉ được nộp 1 báo cáo cho mỗi đơn thực tập
+        if (ReportWeek.HasSubmittedThisWeek(application))
+        {
+            TempData["WarningMessage"] = $"Bạn đã nộp báo cáo cho tuần này rồi. Báo cáo kế tiếp mở từ Thứ Hai {ReportWeek.NextWindowOpens():dd/MM/yyyy}.";
+            return RedirectToAction(nameof(Index));
+        }
+
         if (!ModelState.IsValid)
         {
             TempData["ErrorMessage"] = ModelState.Values
@@ -97,7 +104,16 @@ public class StudentPortalController : Controller
             NextWeekPlan = input.NextWeekPlan?.Trim() ?? string.Empty,
             SubmittedAt = DateTime.Now
         });
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            // Bấm nộp 2 lần liên tiếp: chỉ mục duy nhất (ApplicationId, WeekNumber) chặn bản trùng
+            TempData["WarningMessage"] = "Báo cáo này đã được nộp rồi.";
+            return RedirectToAction(nameof(Index));
+        }
 
         TempData["SuccessMessage"] = $"Đã nộp báo cáo Tuần {nextWeek}.";
         return RedirectToAction(nameof(Index));

@@ -93,6 +93,15 @@ else
                         </div>
                     }
 
+                    @if (ReportWeek.HasSubmittedThisWeek(app))
+                    {
+                        <div class="alert alert-info small mb-0">
+                            <i class="bi bi-check2-circle me-1"></i>Bạn đã nộp báo cáo cho tuần này.
+                            Báo cáo kế tiếp mở từ Thứ Hai <strong>@ReportWeek.NextWindowOpens().ToString("dd/MM/yyyy")</strong>.
+                        </div>
+                    }
+                    else
+                    {
                     <form asp-action="SubmitReport" method="post">
                         <input type="hidden" name="ApplicationId" value="@app.Id" />
                         <h5 class="h6 fw-bold">Nộp báo cáo Tuần @nextWeek</h5>
@@ -106,6 +115,7 @@ else
                         </div>
                         <button type="submit" class="btn btn-primary">Nộp báo cáo Tuần @nextWeek</button>
                     </form>
+                    }
                 }
             </div>
         </div>
