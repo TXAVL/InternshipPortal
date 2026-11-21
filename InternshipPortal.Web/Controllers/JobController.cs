@@ -248,6 +248,28 @@ public class JobController : Controller
             return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
         }
 
+        // Sinh viên đã đăng nhập: lấy họ tên, mã SV, email, SĐT, ngành từ hồ sơ tài khoản, chỉ cần đính kèm CV
+        if (User.IsInRole(Roles.Student))
+        {
+            var profileId = User.GetRelatedId();
+            var profile = profileId.HasValue ? await _context.StudentProfiles.FindAsync(profileId.Value) : null;
+            if (profile == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hồ sơ sinh viên gắn với tài khoản. Vui lòng đăng nhập lại.";
+                return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+            }
+
+            model.StudentCode = profile.StudentCode;
+            model.FullName = profile.FullName;
+            model.Major = profile.Major;
+            model.Email = profile.Email ?? string.Empty;
+            model.PhoneNumber = profile.PhoneNumber ?? string.Empty;
+            foreach (var key in new[] { "StudentCode", "FullName", "Major", "Email", "PhoneNumber" })
+            {
+                ModelState.Remove(key);
+            }
+        }
+
         var job = await _context.JobPosts
             .Include(j => j.Company)
             .FirstOrDefaultAsync(j => j.Id == model.JobPostId);

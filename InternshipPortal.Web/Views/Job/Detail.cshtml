@@ -6,6 +6,7 @@
     var isAdmin = User.IsInRole(Roles.Admin);
     // Admin / Doanh nghiệp không nộp hồ sơ; chỉ Admin hoặc đúng công ty chủ tin mới được sửa / đóng tin
     var canApply = !isAdmin && !User.IsInRole(Roles.Company);
+    var isStudentUser = User.IsInRole(Roles.Student); // sinh viên đã đăng nhập: chỉ cần đính kèm CV
     var canManage = isAdmin || (User.IsInRole(Roles.Company) && User.GetRelatedId() == Model.CompanyId);
 }
 
@@ -188,6 +189,15 @@
                     <input type="hidden" name="JobTitle" value="@Model.Title" />
                     <input type="hidden" name="CompanyName" value="@(Model.Company?.CompanyName ?? "Doanh nghiệp")" />
 
+                    @if (isStudentUser)
+                    {
+                        <div class="alert alert-info small py-2">
+                            <i class="bi bi-person-check me-1"></i>Ứng tuyển bằng tài khoản <strong>@User.Identity?.Name</strong>.
+                            Thông tin cá nhân được lấy từ hồ sơ của bạn, chỉ cần đính kèm CV.
+                        </div>
+                    }
+                    else
+                    {
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="applyFullName">Họ và tên <span class="text-danger">*</span></label>
                         <input type="text" id="applyFullName" name="FullName" class="form-control" placeholder="Nguyễn Văn A" required>
@@ -212,6 +222,7 @@
                         <label class="form-label fw-semibold" for="applyPhone">Số điện thoại <span class="text-danger">*</span></label>
                         <input type="tel" id="applyPhone" name="PhoneNumber" class="form-control" placeholder="0912345678" required>
                     </div>
+                    }
 
                     <div class="mb-2">
                         <label class="form-label fw-semibold" for="applyCv">Đính kèm CV</label>
