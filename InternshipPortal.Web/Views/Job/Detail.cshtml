@@ -6,6 +6,8 @@
     var isAdmin = User.IsInRole(Roles.Admin);
     // Admin / Doanh nghiệp không nộp hồ sơ; chỉ Admin hoặc đúng công ty chủ tin mới được sửa / đóng tin
     var canApply = !isAdmin && !User.IsInRole(Roles.Company);
+    ApplicationStatus? myStatus = ViewBag.MyApplicationStatus as ApplicationStatus?;
+    var hasApplied = myStatus.HasValue; // đã nộp vị trí này: không nộp lại, hiện trạng thái đơn
     var isStudentUser = User.IsInRole(Roles.Student); // sinh viên đã đăng nhập: chỉ cần đính kèm CV
     var canManage = isAdmin || (User.IsInRole(Roles.Company) && User.GetRelatedId() == Model.CompanyId);
 }
@@ -75,6 +77,13 @@
                 @if (!canApply)
                 {
                 }
+                else if (hasApplied)
+                {
+                    <button type="button" class="btn btn-outline-secondary fw-bold" disabled>
+                        <i class="bi bi-check2-circle me-2"></i>Đã ứng tuyển
+                    </button>
+                    <partial name="_StatusBadge" model="myStatus!.Value" />
+                }
                 else if (Model.IsActive)
                 {
                     <button type="button" class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
@@ -143,7 +152,14 @@
                 </li>
             </ul>
 
-            @if (canApply && Model.IsActive)
+            @if (canApply && hasApplied)
+            {
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 border rounded-3 p-3">
+                    <span class="fw-semibold"><i class="bi bi-check2-circle me-1"></i>Bạn đã ứng tuyển vị trí này</span>
+                    <partial name="_StatusBadge" model="myStatus!.Value" />
+                </div>
+            }
+            else if (canApply && Model.IsActive)
             {
                 <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#applyModal">
                     <i class="bi bi-send-fill me-2"></i>Ứng tuyển ngay
@@ -171,7 +187,7 @@
     </div>
 </div>
 
-@if (canApply)
+@if (canApply && !hasApplied)
 {
 <!-- Modal Nộp Hồ Sơ Ứng Tuyển -->
 <div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">

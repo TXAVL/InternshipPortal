@@ -82,6 +82,15 @@ public class JobController : Controller
             return NotFound();
         }
 
+        // Sinh viên đã đăng nhập: cho biết đã ứng tuyển vị trí này chưa (và trạng thái hiện tại)
+        if (User.IsInRole(Roles.Student) && User.GetRelatedId() is int studentId)
+        {
+            ViewBag.MyApplicationStatus = await _context.Applications
+                .Where(a => a.JobPostId == id && a.StudentProfileId == studentId)
+                .Select(a => (ApplicationStatus?)a.Status)
+                .FirstOrDefaultAsync();
+        }
+
         ViewBag.ApplyModel = new ApplyJobViewModel
         {
             JobPostId = job.Id,
