@@ -4,7 +4,6 @@
     ViewData["Title"] = "Nhật ký thực tập";
 }
 
-@* Khung xương chức năng: Bạn A trau chuốt giao diện. *@
 @{
     var isAdmin = User.IsInRole(Roles.Admin);
     var myLabel = isAdmin ? "Nhận xét của bạn (Khoa / GVHD)" : "Nhận xét của bạn (Doanh nghiệp)";
@@ -21,7 +20,7 @@
 
 @foreach (var r in Model)
 {
-    <div class="card border-0 shadow-sm mb-3" id="report-@r.Id">
+    <div class="card border-0 shadow-sm mb-3 report-item" id="report-@r.Id">
         <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
                 <div>

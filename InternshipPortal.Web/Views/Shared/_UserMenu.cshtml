@@ -1,4 +1,4 @@
-@* Menu tài khoản: đọc từ Cookie Claims. Bạn A trau chuốt giao diện phần này. *@
+@* Menu tài khoản: đọc từ Cookie Claims. *@
 @if (User.Identity?.IsAuthenticated == true)
 {
     var roleName = User.IsInRole(Roles.Admin) ? "Khoa / Admin"
@@ -6,9 +6,10 @@
         : User.IsInRole(Roles.Student) ? "Sinh viên" : "";
 
     <div class="d-flex align-items-center gap-2 text-white">
-        <span class="small">
-            <strong>@User.Identity.Name</strong>
-            <span class="opacity-75">(@roleName)</span>
+        <span class="user-chip small">
+            <span class="user-avatar">@(string.IsNullOrEmpty(User.Identity.Name) ? "?" : User.Identity.Name.Substring(0, 1).ToUpperInvariant())</span>
+            <span class="d-none d-md-inline"><strong>@User.Identity.Name</strong></span>
+            <span class="role-pill">@roleName</span>
         </span>
         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
             <button type="submit" class="btn btn-light btn-sm text-primary fw-semibold">

@@ -4,14 +4,17 @@
     ViewData["Title"] = "Đăng nhập";
 }
 
-@* Khung xương: form đăng nhập duy nhất. Bạn A trau chuốt giao diện. *@
 <div class="row justify-content-center py-4">
     <div class="col-12 col-md-7 col-lg-5">
         <partial name="_Alerts" />
 
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm auth-card">
+            <div class="auth-head">
+                <div class="auth-icon"><i class="bi bi-person-lock"></i></div>
+                <h1 class="h4 fw-bold">Đăng nhập</h1>
+                <p>Cổng thực tập TDU</p>
+            </div>
             <div class="card-body p-4">
-                <h1 class="h4 fw-bold mb-3">Đăng nhập</h1>
 
                 <form asp-action="Login" method="post" novalidate>
                     <input type="hidden" asp-for="ReturnUrl" />

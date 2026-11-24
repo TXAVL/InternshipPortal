@@ -12,7 +12,6 @@
     };
 }
 
-@* Khung xương: chỉ hiển thị số liệu thật từ CSDL bằng Bootstrap thuần. Bạn A trau chuốt giao diện + biểu đồ. *@
 <h1 class="h3 fw-bold mb-3">Tổng quan thực tập</h1>
 
 <partial name="_Alerts" />
@@ -22,31 +21,56 @@
     <a asp-controller="Application" asp-action="ExportExcel" class="btn btn-success">Xuất Excel hồ sơ</a>
 </div>
 
-<h2 class="h5 fw-bold">Chỉ số tổng hợp</h2>
-<table class="table table-bordered bg-white mb-4">
-    <tbody>
-        <tr><th scope="row">Tổng số doanh nghiệp</th><td>@Model.TotalCompanies (đã duyệt: @Model.ApprovedCompanies)</td></tr>
-        <tr><th scope="row">Tổng số tin tuyển dụng</th><td>@Model.TotalJobPosts (đang mở: @Model.ActiveJobPosts)</td></tr>
-        <tr><th scope="row">Tổng số hồ sơ ứng tuyển</th><td>@Model.TotalApplications (từ @Model.TotalStudentsApplied sinh viên)</td></tr>
-        <tr><th scope="row">Số SV đã trúng tuyển</th><td>@Model.AcceptedStudents</td></tr>
-        <tr><th scope="row">Tỷ lệ có nơi thực tập</th><td>@Model.PlacementRate.ToString("0.#", culture)%</td></tr>
-    </tbody>
-</table>
+<div class="row g-3 mb-4">
+    @{
+        var cards = new (string Icon, string Color, string Bg, string Value, string Label, string Sub)[]
+        {
+            ("bi-building", "#1d4ed8", "#dbeafe", Model.TotalCompanies.ToString(), "Doanh nghiệp", $"đã duyệt: {Model.ApprovedCompanies}"),
+            ("bi-briefcase", "#7c3aed", "#ede9fe", Model.TotalJobPosts.ToString(), "Tin tuyển dụng", $"đang mở: {Model.ActiveJobPosts}"),
+            ("bi-file-earmark-person", "#d97706", "#fef3c7", Model.TotalApplications.ToString(), "Hồ sơ ứng tuyển", $"từ {Model.TotalStudentsApplied} sinh viên"),
+            ("bi-patch-check", "#059669", "#d1fae5", Model.PlacementRate.ToString("0.#", culture) + "%", "Tỷ lệ có nơi thực tập", $"{Model.AcceptedStudents} SV trúng tuyển")
+        };
+    }
+    @foreach (var c in cards)
+    {
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <span class="stat-icon mb-2" style="background:@c.Bg;color:@c.Color"><i class="bi @c.Icon"></i></span>
+                <div class="stat-value">@c.Value</div>
+                <div class="stat-label">@c.Label</div>
+                <div class="small text-secondary">@c.Sub</div>
+            </div>
+        </div>
+    }
+</div>
 
 <h2 class="h5 fw-bold">Hồ sơ theo trạng thái</h2>
-<table class="table table-bordered bg-white mb-4">
-    <thead><tr><th>Trạng thái</th><th>Số hồ sơ</th><th>Tỷ lệ</th></tr></thead>
-    <tbody>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        @{
+            var colors = new Dictionary<ApplicationStatus, string>
+            {
+                [ApplicationStatus.Pending] = "#f59e0b",
+                [ApplicationStatus.Interview] = "#3b82f6",
+                [ApplicationStatus.Accepted] = "#10b981",
+                [ApplicationStatus.Rejected] = "#ef4444"
+            };
+        }
         @foreach (var s in statuses)
         {
-            <tr>
-                <td>@s.Label</td>
-                <td>@Model.CountOf(s.Status)</td>
-                <td>@Model.PercentOf(s.Status).ToString("0", culture)%</td>
-            </tr>
+            var pct = Model.PercentOf(s.Status).ToString("0", culture);
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="fw-semibold">@s.Label</span>
+                    <span class="text-secondary">@Model.CountOf(s.Status) hồ sơ · @pct%</span>
+                </div>
+                <div class="bar-track" role="progressbar" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100" aria-label="@s.Label">
+                    <div class="bar-fill" style="width:@pct%;background:@colors[s.Status]"></div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+</div>
 
 <h2 class="h5 fw-bold">Hồ sơ theo doanh nghiệp</h2>
 <table class="table table-bordered bg-white mb-4">
