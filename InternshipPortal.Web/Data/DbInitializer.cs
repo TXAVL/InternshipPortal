@@ -19,6 +19,7 @@ public static class DbInitializer
         SeedCompaniesAndJobs(context);
         SeedTxaStudio(context);
         SeedAccounts(context);
+        SeedEvaluation(context);
     }
 
     private static void SeedCompaniesAndJobs(ApplicationDbContext context)
@@ -130,7 +131,46 @@ BEGIN
         [RelatedId] INT NULL
     );
     CREATE UNIQUE INDEX [IX_UserAccounts_Username] ON [dbo].[UserAccounts] ([Username]);
+END
+
+IF OBJECT_ID(N'[dbo].[Evaluations]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[Evaluations] (
+        [Id] INT IDENTITY(1,1) NOT NULL CONSTRAINT [PK_Evaluations] PRIMARY KEY,
+        [ApplicationId] INT NOT NULL,
+        [CompanyScore] FLOAT NULL,
+        [CompanyComment] NVARCHAR(MAX) NULL,
+        [SchoolScore] FLOAT NULL,
+        [SchoolComment] NVARCHAR(MAX) NULL,
+        [FinalScore] FLOAT NULL,
+        [EvaluatedAt] DATETIME2 NULL,
+        CONSTRAINT [FK_Evaluations_Applications_ApplicationId] FOREIGN KEY ([ApplicationId])
+            REFERENCES [dbo].[Applications] ([Id]) ON DELETE CASCADE
+    );
+    CREATE UNIQUE INDEX [IX_Evaluations_ApplicationId] ON [dbo].[Evaluations] ([ApplicationId]);
 END");
+    }
+
+    /// <summary>Đánh giá mẫu cho sinh viên "test": Doanh nghiệp đã chấm, để trống điểm Khoa để demo chấm điểm.</summary>
+    private static void SeedEvaluation(ApplicationDbContext context)
+    {
+        var application = context.Applications
+            .Where(a => a.StudentProfile.StudentCode == "test" && a.Status == ApplicationStatus.Accepted)
+            .OrderBy(a => a.Id)
+            .FirstOrDefault();
+        if (application == null || context.Evaluations.Any(e => e.ApplicationId == application.Id))
+        {
+            return;
+        }
+
+        context.Evaluations.Add(new Evaluation
+        {
+            ApplicationId = application.Id,
+            CompanyScore = 8.5,
+            CompanyComment = "Thái độ tốt, nắm bắt nhanh quy trình dự án.",
+            EvaluatedAt = DateTime.Now
+        });
+        context.SaveChanges();
     }
 
     /// <summary>Công ty TXA Studio + tin tuyển dụng thực tập (idempotent, chạy được trên DB cũ).</summary>

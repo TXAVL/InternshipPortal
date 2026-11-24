@@ -95,6 +95,40 @@ else
                         </div>
                     }
 
+                    @if (app.Evaluation is { } ev)
+                    {
+                        var inv = System.Globalization.CultureInfo.InvariantCulture;
+                        <div class="card border-0 mb-3" style="background:#f0f9ff">
+                            <div class="card-body">
+                                <h4 class="h6 fw-bold mb-3"><i class="bi bi-award me-1"></i>Kết quả đánh giá cuối kỳ</h4>
+                                <div class="row g-2 text-center mb-2">
+                                    <div class="col-4"><div class="stat-card py-2"><div class="stat-label">Doanh nghiệp (40%)</div><div class="fs-5 fw-semibold">@(ev.CompanyScore?.ToString("0.##", inv) ?? "Chưa chấm")</div></div></div>
+                                    <div class="col-4"><div class="stat-card py-2"><div class="stat-label">Khoa (60%)</div><div class="fs-5 fw-semibold">@(ev.SchoolScore?.ToString("0.##", inv) ?? "Chưa chấm")</div></div></div>
+                                    <div class="col-4"><div class="stat-card py-2"><div class="stat-label">Tổng kết</div>
+                                        @if (ev.FinalScore is double fs)
+                                        {
+                                            <span class="badge fs-6 @(fs >= 5.0 ? "text-bg-success" : "text-bg-danger")">@fs.ToString("0.##", inv)</span>
+                                        }
+                                        else
+                                        {
+                                            <div class="fs-6 text-secondary">Chưa đủ điểm</div>
+                                        }
+                                    </div></div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(ev.CompanyComment))
+                                {
+                                    <div class="small fw-semibold text-secondary">Nhận xét của Doanh nghiệp</div>
+                                    <div class="feedback-box mb-2" style="white-space: pre-line;">@ev.CompanyComment</div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(ev.SchoolComment))
+                                {
+                                    <div class="small fw-semibold text-secondary">Nhận xét của Khoa / GVHD</div>
+                                    <div class="feedback-box" style="white-space: pre-line;">@ev.SchoolComment</div>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     @if (ReportWeek.HasSubmittedThisWeek(app))
                     {
                         <div class="alert alert-info small mb-0">

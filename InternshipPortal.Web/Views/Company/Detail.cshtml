@@ -18,9 +18,9 @@
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <span class="badge @(Model.IsApproved ? "bg-success" : "bg-warning") mb-2">
-                        @(Model.IsApproved ? "✓ Đối tác chính thức" : "⏳ Chưa duyệt")
+                        @if (Model.IsApproved) { <text><i class="bi bi-check-circle me-1"></i>Đối tác chính thức</text> } else { <text><i class="bi bi-hourglass-split me-1"></i>Chưa duyệt</text> }
                     </span>
-                    <h2 class="fw-bold text-dark mb-1">🏢 @Model.CompanyName</h2>
+                    <h2 class="fw-bold text-dark mb-1"><i class="bi bi-building me-1"></i> @Model.CompanyName</h2>
                     <p class="text-muted mb-0">📍 @(Model.Address ?? "Địa chỉ đang cập nhật")</p>
                 </div>
                 @if (User.IsInRole(Roles.Admin))
@@ -40,7 +40,7 @@
 
             <div class="row g-3 pt-3 border-top mt-2 text-secondary">
                 <div class="col-md-4">
-                    <strong>📧 Email tuyển dụng:</strong><br />
+                    <strong><i class="bi bi-envelope me-1"></i> Email tuyển dụng:</strong><br />
                     @(Model.ContactEmail ?? "Chưa có")
                 </div>
                 <div class="col-md-4">
@@ -55,7 +55,7 @@
                     }
                 </div>
                 <div class="col-md-4">
-                    <strong>📊 Tin tuyển dụng:</strong><br />
+                    <strong><i class="bi bi-bar-chart me-1"></i> Tin tuyển dụng:</strong><br />
                     <span>@(Model.JobPosts?.Count ?? 0) vị trí (@(Model.JobPosts?.Count(j => j.IsActive) ?? 0) đang mở)</span>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                                 </a>
                             </h5>
                             <div class="small text-muted mb-2">
-                                📍 @job.Location | 👥 @job.Quantity chỉ tiêu | ⏳ Hạn: @job.ExpireDate.ToString("dd/MM/yyyy")
+                                📍 @job.Location | 👥 @job.Quantity chỉ tiêu | <i class="bi bi-hourglass-split me-1"></i> Hạn: @job.ExpireDate.ToString("dd/MM/yyyy")
                             </div>
                             <p class="small text-secondary mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                 @job.Description

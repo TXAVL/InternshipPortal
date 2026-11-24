@@ -41,6 +41,7 @@ public class StudentPortalController : Controller
                 .Include(a => a.JobPost)
                     .ThenInclude(j => j.Company)
                 .Include(a => a.WeeklyReports)
+                .Include(a => a.Evaluation)
                 .OrderByDescending(a => a.Status == ApplicationStatus.Accepted)
                 .ThenByDescending(a => a.AppliedAt)
                 .ToListAsync();

@@ -1,8 +1,54 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
+    var isAdmin = User.IsInRole(Roles.Admin);
+    var isCompany = User.IsInRole(Roles.Company);
+    var isStudent = User.IsInRole(Roles.Student);
+    var steps = new (string Icon, string Title, string Text)[]
+    {
+        ("bi-megaphone", "Đăng tin tuyển dụng", "Doanh nghiệp đăng vị trí thực tập, Khoa duyệt doanh nghiệp."),
+        ("bi-file-earmark-person", "Nộp hồ sơ và CV", "Sinh viên chọn vị trí, đính kèm CV và theo dõi trạng thái đơn."),
+        ("bi-journal-text", "Nhật ký hàng tuần", "Sinh viên trúng tuyển báo cáo mỗi tuần, Khoa và doanh nghiệp nhận xét."),
+        ("bi-award", "Chấm điểm cuối kỳ", "Điểm tổng kết gồm 40% doanh nghiệp và 60% Khoa.")
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-hero">
+    <div class="eyebrow mb-2">Cổng thực tập sinh viên</div>
+    <h1 class="mb-3">Theo dõi thực tập từ ứng tuyển đến điểm cuối kỳ</h1>
+    <p class="lead mb-4">Một nơi cho sinh viên, doanh nghiệp và Khoa: tin tuyển dụng, hồ sơ, nhật ký hàng tuần và bảng điểm.</p>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Job" asp-action="Index" class="btn btn-primary px-4"><i class="bi bi-search me-1"></i>Xem tin tuyển dụng</a>
+        @if (isAdmin)
+        {
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary px-4">Mở bảng tổng quan</a>
+        }
+        else if (isCompany)
+        {
+            <a asp-controller="Application" asp-action="Index" class="btn btn-outline-primary px-4">Xem hồ sơ ứng tuyển</a>
+        }
+        else if (isStudent)
+        {
+            <a asp-controller="StudentPortal" asp-action="Index" class="btn btn-outline-primary px-4">Vào cổng sinh viên</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary px-4">Đăng nhập</a>
+        }
+    </div>
+</section>
+
+<section class="pb-4">
+    <div class="row g-3">
+        @for (var i = 0; i < steps.Length; i++)
+        {
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card step-card">
+                    <span class="step-icon"><i class="bi @steps[i].Icon"></i></span>
+                    <div class="step-no">BƯỚC @(i + 1)</div>
+                    <h2 class="h6 fw-bold mt-1">@steps[i].Title</h2>
+                    <p class="small text-secondary mb-0">@steps[i].Text</p>
+                </div>
+            </div>
+        }
+    </div>
+</section>

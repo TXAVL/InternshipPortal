@@ -103,6 +103,7 @@ public class ApplicationController : Controller
     public async Task<IActionResult> ExportExcel(int? jobPostId, ApplicationStatus? status)
     {
         var query = _context.Applications
+            .Include(a => a.Evaluation)
             .Include(a => a.StudentProfile)
             .Include(a => a.JobPost)
                 .ThenInclude(j => j.Company)
@@ -128,14 +129,14 @@ public class ApplicationController : Controller
 
             // Tiêu đề bảng
             worksheet.Cell(1, 1).Value = "BÁO CÁO DANH SÁCH SINH VIÊN ỨNG TUYỂN THỰC TẬP";
-            worksheet.Range("A1:K1").Merge();
+            worksheet.Range("A1:N1").Merge();
             worksheet.Cell(1, 1).Style.Font.Bold = true;
             worksheet.Cell(1, 1).Style.Font.FontSize = 16;
             worksheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(13, 110, 253);
             worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
             worksheet.Cell(2, 1).Value = $"Ngày xuất: {DateTime.Now:dd/MM/yyyy HH:mm} | Tổng số: {applications.Count} hồ sơ";
-            worksheet.Range("A2:K2").Merge();
+            worksheet.Range("A2:N2").Merge();
             worksheet.Cell(2, 1).Style.Font.Italic = true;
             worksheet.Cell(2, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
@@ -144,7 +145,8 @@ public class ApplicationController : Controller
             {
                 "STT", "Mã SV", "Họ và tên", "Chuyên ngành",
                 "Email", "Số điện thoại", "Vị trí ứng tuyển",
-                "Doanh nghiệp", "Ngày nộp", "Trạng thái", "File CV"
+                "Doanh nghiệp", "Ngày nộp", "Trạng thái", "File CV",
+                "Điểm Doanh nghiệp (40%)", "Điểm Khoa (60%)", "Điểm Tổng Kết"
             };
 
             for (int i = 0; i < headers.Length; i++)
@@ -175,6 +177,15 @@ public class ApplicationController : Controller
                 worksheet.Cell(row, 9).Value = app.AppliedAt.ToString("dd/MM/yyyy HH:mm");
                 worksheet.Cell(row, 10).Value = GetStatusDisplayName(app.Status);
                 worksheet.Cell(row, 11).Value = !string.IsNullOrEmpty(app.StudentProfile?.CVPath) ? "Đã nộp" : "Chưa có";
+
+                worksheet.Cell(row, 12).Value = ScoreText(app.Evaluation?.CompanyScore);
+                worksheet.Cell(row, 13).Value = ScoreText(app.Evaluation?.SchoolScore);
+                worksheet.Cell(row, 14).Value = ScoreText(app.Evaluation?.FinalScore);
+                for (int c = 12; c <= 14; c++)
+                {
+                    worksheet.Cell(row, c).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                }
+                worksheet.Cell(row, 14).Style.Font.Bold = true;
 
                 // Canh giữa STT, Mã SV, Ngày nộp, Trạng thái
                 worksheet.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -225,6 +236,9 @@ public class ApplicationController : Controller
             }
         }
     }
+
+    private static string ScoreText(double? score) =>
+        score.HasValue ? score.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : "Chưa chấm";
 
     private int? CurrentCompanyId()
     {

@@ -69,4 +69,26 @@ public class DashboardController : Controller
 
         return View(model);
     }
+
+    // POST: /Dashboard/ResetDemoData
+    // Xóa sạch dữ liệu rồi nạp lại bộ dữ liệu mẫu ban đầu (tiện cho demo / bảo vệ).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetDemoData()
+    {
+        // Xóa theo thứ tự con trước, cha sau để không vướng khóa ngoại
+        await _context.Evaluations.ExecuteDeleteAsync();
+        await _context.WeeklyReports.ExecuteDeleteAsync();
+        await _context.Applications.ExecuteDeleteAsync();
+        await _context.JobPosts.ExecuteDeleteAsync();
+        await _context.Companies.ExecuteDeleteAsync();
+        await _context.StudentProfiles.ExecuteDeleteAsync();
+        await _context.UserAccounts.ExecuteDeleteAsync();
+
+        _context.ChangeTracker.Clear();
+        DbInitializer.Initialize(_context);
+
+        TempData["SuccessMessage"] = "Đã khôi phục dữ liệu mẫu ban đầu.";
+        return RedirectToAction(nameof(Index));
+    }
 }

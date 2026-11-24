@@ -1,0 +1,144 @@
+@model IEnumerable<InternshipPortal.Web.Models.Application>
+
+@{
+    ViewData["Title"] = "Đánh giá & Chấm điểm";
+    var isAdmin = User.IsInRole(Roles.Admin);
+    var roleLabel = isAdmin ? "Khoa / GVHD (60%)" : "Doanh nghiệp (40%)";
+    var culture = System.Globalization.CultureInfo.InvariantCulture;
+    string Fmt(double? v) => v.HasValue ? v.Value.ToString("0.##", culture) : "—";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Đánh giá &amp; Chấm điểm cuối kỳ</h1>
+        <p class="text-secondary mb-0">
+            Điểm tổng kết = 40% điểm Doanh nghiệp + 60% điểm Khoa. Bạn đang chấm với vai trò
+            <strong>@roleLabel</strong>.
+        </p>
+    </div>
+</div>
+
+<partial name="_Alerts" />
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center text-secondary py-5">
+            <i class="bi bi-clipboard-check fs-1"></i>
+            <p class="mt-2 mb-0">Chưa có sinh viên nào trúng tuyển để chấm điểm.</p>
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    @foreach (var a in Model)
+    {
+        var ev = a.Evaluation;
+        var myScore = isAdmin ? ev?.SchoolScore : ev?.CompanyScore;
+        var myComment = isAdmin ? ev?.SchoolComment : ev?.CompanyComment;
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <div>
+                            <div class="fw-bold">@a.StudentProfile.FullName</div>
+                            <div class="small text-secondary">
+                                Mã SV: @a.StudentProfile.StudentCode
+                                @if (!string.IsNullOrEmpty(a.StudentProfile.Major)) { <text> · @a.StudentProfile.Major</text> }
+                            </div>
+                            <div class="small text-secondary">@a.JobPost.Title · @a.JobPost.Company?.CompanyName</div>
+                        </div>
+                        @if (ev?.FinalScore is double final)
+                        {
+                            <span class="badge fs-6 @(final >= 5.0 ? "text-bg-success" : "text-bg-danger")">@Fmt(final)</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Chưa đủ điểm</span>
+                        }
+                    </div>
+
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="stat-card py-2">
+                                <div class="stat-label">Doanh nghiệp (40%)</div>
+                                <div class="fs-5 fw-semibold">@Fmt(ev?.CompanyScore)</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-card py-2">
+                                <div class="stat-label">Khoa (60%)</div>
+                                <div class="fs-5 fw-semibold">@Fmt(ev?.SchoolScore)</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-card py-2">
+                                <div class="stat-label">Tổng kết</div>
+                                <div class="fs-5 fw-bold">@Fmt(ev?.FinalScore)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(ev?.CompanyComment))
+                    {
+                        <div class="small fw-semibold text-secondary">Nhận xét của Doanh nghiệp</div>
+                        <div class="feedback-box mb-2" style="white-space: pre-line;">@ev!.CompanyComment</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(ev?.SchoolComment))
+                    {
+                        <div class="small fw-semibold text-secondary">Nhận xét của Khoa / GVHD</div>
+                        <div class="feedback-box mb-2" style="white-space: pre-line;">@ev!.SchoolComment</div>
+                    }
+
+                    <button type="button" class="btn btn-primary btn-sm mt-2 btn-score"
+                            data-bs-toggle="modal" data-bs-target="#scoreModal"
+                            data-app="@a.Id"
+                            data-name="@a.StudentProfile.FullName"
+                            data-score="@(myScore.HasValue ? myScore.Value.ToString("0.0", culture) : "")"
+                            data-comment="@myComment">
+                        <i class="bi bi-pencil-square me-1"></i>@(myScore.HasValue ? "Sửa điểm" : "Chấm điểm")
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="scoreModal" tabindex="-1" aria-labelledby="scoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="SubmitScore" method="post" class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="scoreModalLabel">Chấm điểm: <span id="scoreStudent"></span></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="applicationId" id="scoreAppId" />
+                <p class="small text-secondary">Vai trò chấm: <strong>@roleLabel</strong></p>
+                <div class="mb-3">
+                    <label for="scoreInput" class="form-label small fw-semibold">Điểm (0 - 10)</label>
+                    <input type="number" name="score" id="scoreInput" class="form-control" min="0" max="10" step="0.1" required />
+                </div>
+                <div class="mb-0">
+                    <label for="scoreComment" class="form-label small fw-semibold">Nhận xét tổng kết</label>
+                    <textarea name="comment" id="scoreComment" rows="3" class="form-control" maxlength="2000"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu điểm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('scoreModal').addEventListener('show.bs.modal', function (e) {
+            var b = e.relatedTarget;
+            document.getElementById('scoreStudent').textContent = b.dataset.name;
+            document.getElementById('scoreAppId').value = b.dataset.app;
+            document.getElementById('scoreInput').value = b.dataset.score || '';
+            document.getElementById('scoreComment').value = b.dataset.comment || '';
+        });
+    </script>
+}

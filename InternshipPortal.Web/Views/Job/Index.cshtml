@@ -67,7 +67,7 @@
         @foreach (var item in Model.Jobs)
         {
             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                <div class="card shadow-sm h-100 border-0 rounded-3">
+                <div class="card card-lift h-100">
                     <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                             <span class="badge bg-primary">@item.Major</span>
@@ -76,7 +76,7 @@
                             </span>
                         </div>
 
-                        <h5 class="card-title fw-bold text-truncate mb-2" title="@item.Title">
+                        <h5 class="card-title fw-bold title-clamp mb-2" title="@item.Title">
                             <a asp-action="Detail" asp-route-id="@item.Id" class="text-decoration-none text-dark hover-primary">@item.Title</a>
                         </h5>
 

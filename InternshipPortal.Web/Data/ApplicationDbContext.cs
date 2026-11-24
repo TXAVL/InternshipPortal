@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Application> Applications { get; set; } = null!;
     public DbSet<WeeklyReport> WeeklyReports { get; set; } = null!;
     public DbSet<UserAccount> UserAccounts { get; set; } = null!;
+    public DbSet<Evaluation> Evaluations { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +25,16 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<UserAccount>(entity =>
         {
             entity.HasIndex(u => u.Username).IsUnique();
+        });
+
+        modelBuilder.Entity<Evaluation>(entity =>
+        {
+            // Mỗi đơn thực tập chỉ có một bản đánh giá cuối kỳ
+            entity.HasOne(e => e.Application)
+                  .WithOne(a => a.Evaluation)
+                  .HasForeignKey<Evaluation>(e => e.ApplicationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.ApplicationId).IsUnique();
         });
 
         modelBuilder.Entity<WeeklyReport>(entity =>

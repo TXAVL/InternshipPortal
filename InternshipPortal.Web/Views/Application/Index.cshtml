@@ -19,11 +19,11 @@
             @if (User.IsInRole(Roles.Admin))
             {
                 <a asp-action="ExportExcel" asp-route-jobPostId="@selectedJobPostId" asp-route-status="@selectedStatus" class="btn btn-success fw-semibold shadow-sm d-flex align-items-center gap-2">
-                    <span>📊</span> Xuất Báo Cáo Excel (.xlsx)
+                    <i class="bi bi-bar-chart"></i> Xuất Báo Cáo Excel (.xlsx)
                 </a>
             }
             <a asp-controller="Job" asp-action="Index" class="btn btn-outline-primary d-flex align-items-center gap-1">
-                <span>💼</span> Xem trang việc làm
+                <i class="bi bi-briefcase"></i> Xem trang việc làm
             </a>
         </div>
     </div>
@@ -37,7 +37,7 @@
             <form method="get" asp-action="Index" class="row g-2 align-items-center">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <span class="input-group-text bg-transparent border-end-0 text-muted">🔍</span>
+                        <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search me-1"></i></span>
                         <input type="text" name="search" class="form-control border-start-0" placeholder="Tên sinh viên, MSSV, vị trí, công ty..." value="@searchTerm" />
                     </div>
                 </div>
@@ -111,7 +111,7 @@
                     {
                         <tr>
                             <td colspan="9" class="text-center py-5 text-muted">
-                                <div class="fs-1 mb-2">📋</div>
+                                <div class="fs-1 mb-2"><i class="bi bi-clipboard me-1"></i></div>
                                 <div>Chưa có hồ sơ ứng tuyển nào phù hợp với điều kiện tìm kiếm.</div>
                             </td>
                         </tr>
@@ -132,8 +132,8 @@
                                     }
                                 </td>
                                 <td>
-                                    <div class="small">📧 <a href="mailto:@item.StudentProfile?.Email" class="text-decoration-none">@item.StudentProfile?.Email</a></div>
-                                    <div class="small text-muted">📱 @item.StudentProfile?.PhoneNumber</div>
+                                    <div class="small"><i class="bi bi-envelope me-1"></i> <a href="mailto:@item.StudentProfile?.Email" class="text-decoration-none">@item.StudentProfile?.Email</a></div>
+                                    <div class="small text-muted"><i class="bi bi-telephone me-1"></i> @item.StudentProfile?.PhoneNumber</div>
                                 </td>
                                 <td>
                                     <a asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobPostId" class="fw-semibold text-primary text-decoration-none">
@@ -142,7 +142,7 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border">
-                                        🏢 @(item.JobPost?.Company?.CompanyName)
+                                        <i class="bi bi-building me-1"></i> @(item.JobPost?.Company?.CompanyName)
                                     </span>
                                 </td>
                                 <td class="text-center small text-muted">
@@ -152,9 +152,17 @@
                                 <td class="text-center">
                                     @if (!string.IsNullOrEmpty(item.StudentProfile?.CVPath))
                                     {
-                                        <a href="@item.StudentProfile.CVPath" target="_blank" class="btn btn-sm btn-outline-info">
-                                            📄 Tải CV
-                                        </a>
+                                        <div class="d-flex flex-column gap-1 align-items-center">
+                                            <button type="button" class="btn btn-sm btn-outline-primary btn-cv-preview"
+                                                    data-bs-toggle="modal" data-bs-target="#cvModal"
+                                                    data-cv="@item.StudentProfile.CVPath"
+                                                    data-name="@item.StudentProfile.FullName">
+                                                <i class="bi bi-eye me-1"></i>Xem nhanh CV
+                                            </button>
+                                            <a href="@item.StudentProfile.CVPath" target="_blank" class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Tải CV
+                                            </a>
+                                        </div>
                                     }
                                     else
                                     {
@@ -165,16 +173,16 @@
                                     @switch (item.Status)
                                     {
                                         case InternshipPortal.Web.Models.ApplicationStatus.Pending:
-                                            <span class="badge bg-warning text-dark px-3 py-2">⏳ Chờ duyệt</span>
+                                            <span class="badge bg-warning text-dark px-3 py-2"><i class="bi bi-hourglass-split me-1"></i> Chờ duyệt</span>
                                             break;
                                         case InternshipPortal.Web.Models.ApplicationStatus.Interview:
-                                            <span class="badge bg-info text-white px-3 py-2">📅 Mời phỏng vấn</span>
+                                            <span class="badge bg-info text-white px-3 py-2"><i class="bi bi-calendar-event me-1"></i> Mời phỏng vấn</span>
                                             break;
                                         case InternshipPortal.Web.Models.ApplicationStatus.Accepted:
-                                            <span class="badge bg-success px-3 py-2">🎉 Trúng tuyển</span>
+                                            <span class="badge bg-success px-3 py-2"><i class="bi bi-patch-check-fill me-1"></i> Trúng tuyển</span>
                                             break;
                                         case InternshipPortal.Web.Models.ApplicationStatus.Rejected:
-                                            <span class="badge bg-danger px-3 py-2">❌ Từ chối</span>
+                                            <span class="badge bg-danger px-3 py-2"><i class="bi bi-x-circle me-1"></i> Từ chối</span>
                                             break;
                                     }
                                 </td>
@@ -210,4 +218,45 @@
         </div>
     </div>
 </div>
+
+<!-- Modal xem nhanh CV -->
+<div class="modal fade" id="cvModal" tabindex="-1" aria-labelledby="cvModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="cvModalLabel">CV: <span id="cvStudent"></span></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <iframe id="cvFrame" class="w-100 border-0 d-none" style="height: 75vh;" title="Xem nhanh CV"></iframe>
+                <div id="cvUnsupported" class="alert alert-warning d-none mb-0">
+                    <i class="bi bi-info-circle me-1"></i>Định dạng này (.doc / .docx) không xem trực tiếp được trên trình duyệt.
+                    <a id="cvDownload" href="#" target="_blank" class="btn btn-sm btn-primary ms-2">Tải CV về máy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var modal = document.getElementById('cvModal');
+            var frame = document.getElementById('cvFrame');
+            var unsupported = document.getElementById('cvUnsupported');
+            modal.addEventListener('show.bs.modal', function (e) {
+                var b = e.relatedTarget;
+                var url = b.dataset.cv || '';
+                document.getElementById('cvStudent').textContent = b.dataset.name;
+                var path = url.split('?')[0].toLowerCase();
+                var viewable = path.endsWith('.pdf') || /\.(png|jpe?g|gif|webp)$/.test(path);
+                frame.classList.toggle('d-none', !viewable);
+                unsupported.classList.toggle('d-none', viewable);
+                document.getElementById('cvDownload').href = url;
+                frame.src = viewable ? url : 'about:blank';
+            });
+            modal.addEventListener('hidden.bs.modal', function () { frame.src = 'about:blank'; });
+        })();
+    </script>
+}
 

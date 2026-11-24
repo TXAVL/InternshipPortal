@@ -25,5 +25,7 @@ public class Application
     public StudentProfile StudentProfile { get; set; } = null!;
 
     public List<WeeklyReport> WeeklyReports { get; set; } = new();
+
+    public Evaluation? Evaluation { get; set; }
 }
 

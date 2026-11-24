@@ -15,7 +15,7 @@
         @if (User.IsInRole(Roles.Admin))
         {
             <a asp-action="Create" class="btn btn-primary fw-semibold shadow-sm d-flex align-items-center gap-1">
-                <span>🏢</span> Thêm doanh nghiệp mới
+                <i class="bi bi-building"></i> Thêm doanh nghiệp mới
             </a>
         }
     </div>
@@ -35,7 +35,7 @@
             <form method="get" asp-action="Index" class="row g-2">
                 <div class="col-md-10">
                     <div class="input-group">
-                        <span class="input-group-text bg-transparent border-end-0 text-muted">🔍</span>
+                        <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search me-1"></i></span>
                         <input type="text" name="search" class="form-control border-start-0" placeholder="Tên công ty, địa chỉ, email liên hệ..." value="@searchTerm" />
                     </div>
                 </div>
@@ -56,7 +56,7 @@
         {
             <div class="col-12">
                 <div class="card border-0 shadow-sm py-5 text-center">
-                    <div class="display-3 text-muted mb-2">🏢</div>
+                    <div class="display-3 text-muted mb-2"><i class="bi bi-building me-1"></i></div>
                     <h5 class="fw-bold text-dark">Chưa có doanh nghiệp nào phù hợp</h5>
                     <p class="text-muted">Vui lòng thử tìm kiếm lại hoặc bấm thêm doanh nghiệp mới.</p>
                 </div>
@@ -71,7 +71,7 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span class="badge @(c.IsApproved ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning")">
-                                    @(c.IsApproved ? "✓ Đã duyệt hợp tác" : "⏳ Chờ duyệt")
+                                    @if (c.IsApproved) { <text><i class="bi bi-check-circle me-1"></i>Đã duyệt hợp tác</text> } else { <text><i class="bi bi-hourglass-split me-1"></i>Chờ duyệt</text> }
                                 </span>
                                 <span class="badge bg-light text-primary border">
                                     @(c.JobPosts?.Count(j => j.IsActive) ?? 0) việc làm mở
@@ -88,7 +88,7 @@
                                 <strong>📍 Địa chỉ:</strong> @(c.Address ?? "Đang cập nhật")
                             </p>
                             <p class="card-text text-muted small mb-2">
-                                <strong>📧 Email:</strong> @(c.ContactEmail ?? "Đang cập nhật")
+                                <strong><i class="bi bi-envelope me-1"></i> Email:</strong> @(c.ContactEmail ?? "Đang cập nhật")
                             </p>
                             @if (!string.IsNullOrEmpty(c.Website))
                             {
