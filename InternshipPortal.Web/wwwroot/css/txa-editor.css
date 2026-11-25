@@ -1,0 +1,139 @@
+/* TXAEditor - dùng biến màu của theme trong site.css */
+.txa {
+    position: relative; border: 1px solid var(--field-border, #cfccc2); border-radius: var(--r-md, 12px);
+    background: var(--surface, #fff); overflow: visible;
+}
+.txa:focus-within { border-color: var(--accent); box-shadow: 0 0 0 .2rem rgba(var(--accent-rgb), .15); }
+
+.txa-toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; padding: .4rem .5rem;
+    border-bottom: 1px solid var(--line); background: var(--soft-bg); border-radius: var(--r-md, 12px) var(--r-md, 12px) 0 0;
+    position: sticky; top: 0; z-index: 2;
+}
+.txa-group { display: flex; gap: 2px; padding-right: .5rem; border-right: 1px solid var(--line); }
+.txa-group:last-child { border-right: 0; padding-right: 0; }
+.txa-spacer { flex: 1; }
+.txa-btn {
+    width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 6px; background: transparent; color: var(--text); font-size: 1rem;
+    transition: background-color .15s ease, color .15s ease, transform .1s ease;
+}
+.txa-btn:hover { background: var(--accent-tint); color: var(--accent); }
+.txa-btn:active { transform: scale(.92); }
+.txa-btn:focus-visible, .txa-mode:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.txa-modes { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
+.txa-mode {
+    border: 0; background: transparent; color: var(--muted); font-size: .8rem; padding: .3rem .6rem; border-radius: 6px;
+    display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; transition: background-color .15s ease, color .15s ease;
+}
+.txa-mode:hover { color: var(--accent); }
+.txa-mode.active { background: var(--accent); color: #fff; }
+[data-bs-theme="dark"] .txa-mode.active { color: #04201d; }
+
+.txa-body { display: grid; grid-template-columns: 1fr; min-height: 260px; }
+.txa .txa-input {
+    border: 0 !important; border-radius: 0 !important; box-shadow: none !important; resize: vertical;
+    min-height: 260px; max-height: 70vh; padding: .9rem 1rem; font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: .88rem; line-height: 1.65; background: var(--surface); color: var(--text); width: 100%;
+}
+.txa .txa-input:focus { transform: none; }
+.txa-preview, .txa-htmlpane { padding: .9rem 1.1rem; overflow: auto; max-height: 70vh; min-height: 260px; }
+.txa-htmlpane { position: relative; background: var(--soft-bg); }
+.txa-htmlpane pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: .8rem; color: var(--text); }
+.txa-htmlpane .txa-copy { position: sticky; top: 0; float: right; margin: 0 0 .5rem .5rem; }
+
+.txa[data-mode="edit"] .txa-preview, .txa[data-mode="edit"] .txa-htmlpane { display: none; }
+.txa[data-mode="preview"] .txa-input, .txa[data-mode="preview"] .txa-htmlpane { display: none; }
+.txa[data-mode="html"] .txa-input, .txa[data-mode="html"] .txa-preview { display: none; }
+.txa[data-mode="split"] .txa-htmlpane { display: none; }
+@media (min-width: 768px) {
+    .txa[data-mode="split"] .txa-body { grid-template-columns: 1fr 1fr; }
+    .txa[data-mode="split"] .txa-preview { border-left: 1px solid var(--line); }
+}
+@media (max-width: 767.98px) {
+    .txa[data-mode="split"] .txa-preview { border-top: 1px solid var(--line); }
+    .txa-mode span { display: none; }
+    .txa-spacer { display: none; }
+}
+
+.txa-status {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; padding: .35rem .75rem;
+    border-top: 1px solid var(--line); font-size: .75rem; color: var(--muted); background: var(--soft-bg);
+    border-radius: 0 0 var(--r-md, 12px) var(--r-md, 12px);
+}
+.txa-status kbd, .txa-help kbd { font-size: .7rem; padding: .1rem .35rem; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 1px 0 var(--line); }
+.txa-brand { display: inline-flex; align-items: center; gap: .6rem; white-space: nowrap; }
+.txa-clock { font-variant-numeric: tabular-nums; font-family: ui-monospace, Consolas, monospace; color: var(--text); }
+.txa-copyright { opacity: .85; }
+.txa-status .txa-hint { margin-left: auto; margin-right: 1rem; }
+/* Thu nhỏ: ẩn gợi ý, rút gọn bản quyền; phóng to toàn màn hình: hiện đầy đủ */
+@media (max-width: 991.98px) { .txa-hint { display: none; } .txa-status .txa-brand { margin-left: auto; } }
+@media (max-width: 575.98px) { .txa-copyright { display: none; } }
+.txa.txa-full .txa-hint { display: inline; }
+.txa.txa-full .txa-copyright { display: inline; }
+.txa.txa-full .txa-status { font-size: .8rem; padding: .45rem 1rem; }
+
+/* Thanh định dạng nổi */
+.txa-bubble {
+    position: absolute; z-index: 20; display: flex; gap: 2px; padding: 4px; border-radius: 10px;
+    background: var(--ink); box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
+    opacity: 0; pointer-events: none; transform: translateY(4px) scale(.96); transition: opacity .15s ease, transform .15s ease;
+}
+.txa-bubble.show { opacity: 1; pointer-events: auto; transform: none; }
+.txa-bubble .txa-btn { color: #fff; width: 30px; height: 30px; }
+.txa-bubble .txa-btn:hover { background: rgba(255, 255, 255, .14); color: var(--accent-light); }
+
+/* Bảng phím tắt */
+.txa-help {
+    position: absolute; z-index: 25; right: .5rem; top: 3rem; width: min(420px, calc(100% - 1rem));
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .18); display: none; color: var(--text);
+}
+.txa-help.show { display: block; animation: txa-pop .18s ease both; }
+.txa-help-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+.txa-help-grid { display: grid; grid-template-columns: 1fr auto; gap: .3rem .75rem; font-size: .82rem; align-items: center; max-height: 46vh; overflow: auto; }
+@keyframes txa-pop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+/* Toàn màn hình */
+.txa.txa-full { position: fixed; inset: 0; z-index: 1080; border-radius: 0; display: flex; flex-direction: column; }
+.txa.txa-full .txa-toolbar, .txa.txa-full .txa-status { border-radius: 0; }
+.txa.txa-full .txa-body { flex: 1; min-height: 0; }
+.txa.txa-full .txa-input, .txa.txa-full .txa-preview, .txa.txa-full .txa-htmlpane { max-height: none; height: 100%; resize: none; }
+body.txa-noscroll { overflow: hidden; }
+
+/* Nội dung đã dựng (xem trước + trang chi tiết) */
+.txa-content { line-height: 1.65; color: var(--text); overflow-wrap: anywhere; }
+.txa-content > :first-child { margin-top: 0; }
+.txa-content > :last-child { margin-bottom: 0; }
+.txa-content h1, .txa-content h2, .txa-content h3, .txa-content h4 { margin: 1.1em 0 .5em; font-weight: 700; line-height: 1.3; }
+.txa-content h1 { font-size: 1.5rem; } .txa-content h2 { font-size: 1.3rem; } .txa-content h3 { font-size: 1.12rem; } .txa-content h4 { font-size: 1rem; }
+.txa-content p { margin: 0 0 .8em; }
+.txa-content ul, .txa-content ol { padding-left: 1.4rem; margin: 0 0 .8em; }
+.txa-content li { margin: .2em 0; }
+.txa-content li.txa-task { list-style: none; margin-left: -1.2rem; }
+.txa-content .txa-check { color: var(--accent); margin-right: .2rem; }
+.txa-content li.txa-done { color: var(--muted); }
+.txa-content blockquote { margin: 0 0 .8em; padding: .5em 1em; border-left: 4px solid var(--accent); background: var(--accent-tint); border-radius: 0 8px 8px 0; }
+.txa-content blockquote > :last-child { margin-bottom: 0; }
+.txa-content code { background: var(--soft-bg); border: 1px solid var(--line); border-radius: 4px; padding: .05em .35em; font-size: .88em; color: var(--accent-strong); }
+.txa-content pre { background: var(--ink); color: #e6f1ef; border-radius: 8px; padding: .85em 1em; overflow: auto; margin: 0 0 .8em; }
+.txa-content pre code { background: none; border: 0; padding: 0; color: inherit; font-size: .85rem; }
+.txa-content table { width: 100%; border-collapse: collapse; margin: 0 0 .8em; font-size: .9rem; display: block; overflow-x: auto; }
+.txa-content th, .txa-content td { border: 1px solid var(--line); padding: .45em .7em; }
+.txa-content th { background: var(--soft-bg); font-weight: 600; }
+.txa-content hr { border: 0; border-top: 1px solid var(--line); margin: 1.2em 0; opacity: 1; }
+.txa-content img { max-width: 100%; height: auto; border-radius: 8px; }
+.txa-content mark { background: #fde68a; color: inherit; padding: 0 .15em; border-radius: 3px; }
+.txa-content a { text-decoration: underline; text-underline-offset: 2px; }
+.txa-empty { color: var(--muted); font-style: italic; }
+
+@media (prefers-reduced-motion: reduce) {
+    .txa-bubble, .txa-help.show { transition: none; animation: none; }
+}
+
+/* Điện thoại: thanh công cụ một hàng, vuốt ngang để xem thêm nút */
+@media (max-width: 575.98px) {
+    .txa-toolbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+    .txa-group, .txa-modes { flex: none; }
+}

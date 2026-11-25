@@ -1,5 +1,6 @@
+@inject SiteSettingsStore SiteStore
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="ngoc" data-default-theme="ngoc" data-default-fireworks="false">
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string NavActive(string controller) => currentController == controller ? "active" : "";
@@ -10,8 +11,9 @@
 }
 <head>
     <meta charset="utf-8" />
+    <script>(function(){try{var d=document.documentElement,t=localStorage.getItem('ip-theme')||d.getAttribute('data-default-theme');d.setAttribute('data-theme',t);d.setAttribute('data-bs-theme',[@Html.Raw(string.Join(",", ThemeCatalog.All.Where(x => x.Dark).Select(x => "'" + x.Id + "'")))].indexOf(t)>-1?'dark':'light');}catch(e){}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - INTERN PORTAL</title>
+    <title>@ViewData["Title"] - @SiteStore.Current.OrganizationName</title>
     <!-- Bootstrap 5.3 CDN (bản local trong wwwroot/lib là 5.1, thiếu các class *-subtle) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,22 +22,24 @@
     <!-- Bootstrap Icons CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/txa-editor.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/txa-ui.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Header / Navbar -->
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <nav class="navbar navbar-expand-xxl navbar-dark bg-primary shadow-sm">
             <div class="container">
                 <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-mortarboard-fill fs-4"></i>
-                    <span>INTERN PORTAL</span>
+                    <span class="text-uppercase">@SiteStore.Current.OrganizationName</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav me-auto mb-2 mb-xxl-0">
                         @if (isAdmin)
                         {
                             <li class="nav-item">
@@ -73,7 +77,7 @@
                             </li>
                         }
                     </ul>
-                    <div class="d-flex flex-wrap align-items-center gap-2 pb-2 pb-lg-0">
+                    <div class="d-flex flex-wrap flex-xxl-nowrap align-items-center gap-2 pb-2 pb-xxl-0">
                         @if (isStaff)
                         {
                             <a asp-area="" asp-controller="Job" asp-action="Create" class="btn btn-outline-light btn-sm px-3 fw-semibold">
@@ -87,6 +91,16 @@
         </nav>
     </header>
 
+    @if (SiteStore.Current.AnnouncementEnabled && !string.IsNullOrWhiteSpace(SiteStore.Current.AnnouncementText))
+    {
+        <div class="site-banner" role="status">
+            <div class="container d-flex align-items-start gap-2">
+                <i class="bi bi-megaphone-fill mt-1"></i>
+                <div>@SiteStore.Current.AnnouncementText</div>
+            </div>
+        </div>
+    }
+
     <!-- Main Content -->
     <main class="container py-4 flex-grow-1">
         @RenderBody()
@@ -95,14 +109,18 @@
     <!-- Footer -->
     <footer class="bg-white border-top py-3 text-center text-muted">
         <div class="container">
-            <p class="mb-0 small">&copy; @DateTime.Now.Year Bản quyền hệ thống thực tập trường học. All rights reserved.</p>
+            <p class="mb-0 small">&copy; @DateTime.Now.Year @SiteStore.Current.OrganizationName · Hệ thống quản lý thực tập</p>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ThemePanel" />
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/txa-ui.js" asp-append-version="true"></script>
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <script src="~/js/txa-editor.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

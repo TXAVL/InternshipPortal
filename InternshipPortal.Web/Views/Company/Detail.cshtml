@@ -29,7 +29,9 @@
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
                             ✏️ Sửa thông tin
                         </a>
-                        <form asp-action="ToggleApproval" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <form asp-action="ToggleApproval" asp-route-id="@Model.Id" method="post" class="d-inline"
+                              data-txa-confirm="@(Model.IsApproved ? "Doanh nghiệp sẽ không còn được duyệt hợp tác." : "Doanh nghiệp sẽ được duyệt làm đối tác chính thức.")"
+                              data-txa-title="@(Model.IsApproved ? "Tạm khóa duyệt?" : "Phê duyệt doanh nghiệp?")" data-txa-ok="@(Model.IsApproved ? "Tạm khóa" : "Phê duyệt")">
                             <button type="submit" class="btn btn-outline-secondary">
                                 @(Model.IsApproved ? "Tạm khóa duyệt" : "Phê duyệt")
                             </button>

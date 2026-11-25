@@ -148,6 +148,12 @@ BEGIN
             REFERENCES [dbo].[Applications] ([Id]) ON DELETE CASCADE
     );
     CREATE UNIQUE INDEX [IX_Evaluations_ApplicationId] ON [dbo].[Evaluations] ([ApplicationId]);
+END
+
+IF OBJECT_ID(N'[dbo].[Evaluations]', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Evaluations', N'IsPublished') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Evaluations] ADD [IsPublished] BIT NOT NULL CONSTRAINT [DF_Evaluations_IsPublished] DEFAULT 0;
+    ALTER TABLE [dbo].[Evaluations] ADD [PublishedAt] DATETIME2 NULL;
 END");
     }
 
@@ -288,6 +294,28 @@ END");
                 CompanyFeedback = "Mentor tại TXA Studio: em làm quen quy trình nhanh, tuần sau bắt đầu nhận task thật trong sprint.",
                 SubmittedAt = DateTime.Now.AddDays(-3)
             });
+        }
+
+        // Thêm báo cáo Tuần 2-4 (đã nộp từ các tuần trước) để đủ số tuần tối thiểu mặc định và demo chấm điểm được
+        var older = new (int Week, int DaysAgo, string Tasks, string Plan)[]
+        {
+            (2, 10, "Nhận task đầu tiên: thêm bộ lọc tìm kiếm cho danh sách tin tuyển dụng, viết truy vấn LINQ.", "Hoàn thiện bộ lọc, tìm hiểu Dependency Injection."),
+            (3, 17, "Hoàn thiện bộ lọc, refactor controller dùng DI, viết 5 unit test đầu tiên.", "Làm tính năng xuất Excel danh sách ứng viên."),
+            (4, 24, "Làm tính năng xuất Excel bằng ClosedXML, review code cùng mentor và sửa theo góp ý.", "Tìm hiểu phân quyền theo vai trò.")
+        };
+        foreach (var o in older)
+        {
+            if (!context.WeeklyReports.Any(r => r.ApplicationId == application.Id && r.WeekNumber == o.Week))
+            {
+                context.WeeklyReports.Add(new WeeklyReport
+                {
+                    ApplicationId = application.Id,
+                    WeekNumber = o.Week,
+                    TasksDone = o.Tasks,
+                    NextWeekPlan = o.Plan,
+                    SubmittedAt = DateTime.Now.AddDays(-o.DaysAgo)
+                });
+            }
         }
 
         context.UserAccounts.Add(NewAccount("test", "Sinh Viên Test", Roles.Student, student.Id));

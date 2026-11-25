@@ -4,6 +4,7 @@
     ViewData["Title"] = "Đăng ký sinh viên";
 }
 
+<div class="auth-bg" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
 <div class="row justify-content-center py-4">
     <div class="col-12 col-md-9 col-lg-6">
         <div class="card border-0 shadow-sm auth-card">
@@ -16,7 +17,7 @@
 
                 <form asp-action="Register" method="post" novalidate>
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
-                    <div class="row g-3">
+                    <div class="row g-3 stagger">
                         <div class="col-md-6">
                             <label asp-for="StudentCode" class="form-label fw-semibold small"></label>
                             <input asp-for="StudentCode" class="form-control" autocomplete="username" />
@@ -52,10 +53,10 @@
                             <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 fw-semibold mt-4">Đăng ký</button>
+                    <button type="submit" class="btn btn-primary w-100 fw-semibold mt-4 rise-late">Đăng ký</button>
                 </form>
 
-                <p class="small text-secondary text-center mt-3 mb-0">
+                <p class="small text-secondary text-center mt-3 mb-0 rise-late">
                     Đã có tài khoản? <a asp-action="Login">Đăng nhập</a>
                 </p>
             </div>

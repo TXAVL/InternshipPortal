@@ -28,6 +28,11 @@ public class Evaluation
 
     public DateTime? EvaluatedAt { get; set; }
 
+    /// <summary>Sinh viên chỉ thấy kết quả khi Khoa đã công bố điểm.</summary>
+    public bool IsPublished { get; set; }
+
+    public DateTime? PublishedAt { get; set; }
+
     public Application Application { get; set; } = null!;
 
     /// <summary>Tính lại điểm tổng kết: 40% Doanh nghiệp + 60% Khoa; thiếu một đầu điểm thì để null.</summary>

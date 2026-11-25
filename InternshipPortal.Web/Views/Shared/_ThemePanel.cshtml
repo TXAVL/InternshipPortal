@@ -1,0 +1,38 @@
+@* Nút cài đặt nổi ở cạnh phải màn hình + bảng chọn theme và pháo hoa. Dùng cho mọi người dùng, lưu trên trình duyệt. *@
+<button type="button" class="settings-fab" id="settingsFab" data-bs-toggle="offcanvas" data-bs-target="#themePanel"
+        aria-controls="themePanel" aria-label="Mở cài đặt giao diện" title="Cài đặt giao diện">
+    <i class="bi bi-gear-fill"></i>
+</button>
+
+<div class="offcanvas offcanvas-end settings-panel" tabindex="-1" id="themePanel" aria-labelledby="themePanelLabel">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5" id="themePanelLabel"><i class="bi bi-sliders me-2"></i>Cài đặt giao diện</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+    </div>
+    <div class="offcanvas-body">
+        <h3 class="h6 fw-bold mb-2">Theme</h3>
+        <div class="theme-grid mb-4" id="themeGrid">
+            @foreach (var t in ThemeCatalog.All)
+            {
+                <button type="button" class="theme-swatch" data-theme-id="@t.Id" data-dark="@(t.Dark ? "1" : "0")" aria-pressed="false">
+                    <span class="theme-chip" style="--sw-paper:@t.Paper;--sw-ink:@t.Ink;--sw-accent:@t.Accent">
+                        <span class="theme-chip-bar"></span>
+                        <span class="theme-chip-dot"></span>
+                    </span>
+                    <span class="theme-name">@t.Name</span>
+                </button>
+            }
+        </div>
+
+        <h3 class="h6 fw-bold mb-2">Hiệu ứng</h3>
+        <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" role="switch" id="fireworksToggle" />
+            <label class="form-check-label" for="fireworksToggle"><i class="bi bi-stars me-1"></i>Pháo hoa</label>
+        </div>
+        <div class="form-text mb-4" id="fireworksNote">Bấm vào chỗ trống trên trang để bắn thêm pháo. Chọn theme Tết sẽ tự bật pháo hoa.</div>
+
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="themeReset">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Về mặc định của hệ thống
+        </button>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+/* TXA UI: hộp thoại, thông báo nổi, tooltip. Dùng biến màu theme từ site.css */
+
+/* ---------- Tooltip ---------- */
+.txa-tip {
+    position: absolute; z-index: 2000; max-width: min(320px, calc(100vw - 12px)); padding: .4rem .65rem;
+    background: var(--ink); color: #fff; font-size: .78rem; line-height: 1.35; border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .25); pointer-events: none; overflow-wrap: anywhere;
+    opacity: 0; transform: translateY(4px) scale(.97); transition: opacity .14s ease, transform .14s ease;
+}
+.txa-tip.below { transform: translateY(-4px) scale(.97); }
+.txa-tip.show { opacity: 1; transform: none; }
+.txa-tip::after {
+    content: ''; position: absolute; left: var(--arrow-x, 50%); bottom: -5px; width: 10px; height: 10px; margin-left: -5px;
+    background: var(--ink); transform: rotate(45deg); border-radius: 2px;
+}
+.txa-tip.below::after { bottom: auto; top: -5px; }
+
+/* ---------- Hộp thoại ---------- */
+.txa-dlg-backdrop {
+    position: fixed; inset: 0; z-index: 2100; display: flex; align-items: center; justify-content: center; padding: 1rem;
+    background: rgba(8, 20, 18, .5); backdrop-filter: blur(2px); animation: txa-fade .16s ease both;
+}
+.txa-dlg-backdrop.closing { opacity: 0; transition: opacity .14s ease; }
+.txa-dlg {
+    width: min(440px, 100%); background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.4rem 1.4rem 1.1rem; box-shadow: 0 24px 60px rgba(0, 0, 0, .3);
+    display: grid; grid-template-columns: auto 1fr; gap: .25rem 1rem; animation: txa-pop-in .22s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+.txa-dlg.closing { opacity: 0; transform: scale(.96); transition: opacity .14s ease, transform .14s ease; }
+.txa-dlg-icon {
+    width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    background: var(--accent-tint); color: var(--accent);
+}
+.txa-dlg-danger .txa-dlg-icon { background: #fee2e2; color: #b91c1c; }
+.txa-dlg-warning .txa-dlg-icon { background: #fef3c7; color: #b45309; }
+.txa-dlg-success .txa-dlg-icon { background: #d1fae5; color: #047857; }
+[data-bs-theme="dark"] .txa-dlg-danger .txa-dlg-icon { background: #3a1a1a; color: #fca5a5; }
+[data-bs-theme="dark"] .txa-dlg-warning .txa-dlg-icon { background: #3a2c10; color: #fcd34d; }
+.txa-dlg-title { font-size: 1.1rem; font-weight: 700; margin: .1rem 0 .35rem; color: var(--heading); }
+.txa-dlg-msg { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+.txa-dlg-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1rem; }
+body.txa-dlg-open { overflow: hidden; }
+@media (max-width: 480px) {
+    .txa-dlg { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    .txa-dlg-actions { flex-direction: column-reverse; width: 100%; }
+    .txa-dlg-actions .btn { width: 100%; }
+}
+@keyframes txa-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes txa-pop-in { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
+
+/* ---------- Thông báo nổi ---------- */
+.txa-toasts { position: fixed; z-index: 2200; right: 1rem; bottom: 1rem; display: flex; flex-direction: column; gap: .5rem; width: min(360px, calc(100vw - 2rem)); }
+.txa-toast {
+    display: flex; align-items: flex-start; gap: .65rem; padding: .7rem .8rem; background: var(--surface); color: var(--text);
+    border: 1px solid var(--line); border-left-width: 4px; border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, .18);
+    animation: txa-toast-in .22s ease both; font-size: .9rem;
+}
+.txa-toast.closing { opacity: 0; transform: translateX(16px); transition: opacity .18s ease, transform .18s ease; }
+.txa-toast > i { margin-top: .1rem; }
+.txa-toast-msg { flex: 1; }
+.txa-toast-x { border: 0; background: transparent; color: var(--muted); padding: 0 .2rem; }
+.txa-toast-x:hover { color: var(--text); }
+.txa-toast-success { border-left-color: #059669; } .txa-toast-success > i { color: #059669; }
+.txa-toast-info { border-left-color: var(--accent); } .txa-toast-info > i { color: var(--accent); }
+.txa-toast-warning { border-left-color: #d97706; } .txa-toast-warning > i { color: #d97706; }
+.txa-toast-danger { border-left-color: #dc2626; } .txa-toast-danger > i { color: #dc2626; }
+@keyframes txa-toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+@media (max-width: 767.98px) { .txa-toasts { right: .75rem; left: .75rem; width: auto; bottom: 5.5rem; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .txa-tip, .txa-dlg, .txa-dlg-backdrop, .txa-toast { animation: none !important; transition: none !important; }
+}

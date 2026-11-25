@@ -1,9 +1,11 @@
 @model LoginViewModel
+@inject SiteSettingsStore SiteStore
 
 @{
     ViewData["Title"] = "Đăng nhập";
 }
 
+<div class="auth-bg" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
 <div class="row justify-content-center py-4">
     <div class="col-12 col-md-7 col-lg-5">
         <partial name="_Alerts" />
@@ -16,7 +18,7 @@
             </div>
             <div class="card-body p-4">
 
-                <form asp-action="Login" method="post" novalidate>
+                <form asp-action="Login" method="post" novalidate class="stagger">
                     <input type="hidden" asp-for="ReturnUrl" />
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
 
@@ -33,10 +35,13 @@
                     <button type="submit" class="btn btn-primary w-100 fw-semibold">Đăng nhập</button>
                 </form>
 
-                <p class="small text-secondary text-center mt-3 mb-0">
-                    Sinh viên chưa có tài khoản?
-                    <a asp-action="Register">Đăng ký tài khoản sinh viên</a>
-                </p>
+                @if (SiteStore.Current.AllowStudentRegistration)
+                {
+                    <p class="small text-secondary text-center mt-3 mb-0 rise-late">
+                        Sinh viên chưa có tài khoản?
+                        <a asp-action="Register">Đăng ký tài khoản sinh viên</a>
+                    </p>
+                }
             </div>
         </div>
     </div>

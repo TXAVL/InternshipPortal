@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Đánh giá & Chấm điểm";
     var isAdmin = User.IsInRole(Roles.Admin);
+    var minReports = (int)(ViewBag.MinReports ?? 0);
     var roleLabel = isAdmin ? "Khoa / GVHD (60%)" : "Doanh nghiệp (40%)";
     var culture = System.Globalization.CultureInfo.InvariantCulture;
     string Fmt(double? v) => v.HasValue ? v.Value.ToString("0.##", culture) : "—";
@@ -34,6 +35,8 @@
     @foreach (var a in Model)
     {
         var ev = a.Evaluation;
+        var reportCount = a.WeeklyReports.Count;
+        var canScore = reportCount >= minReports;
         var myScore = isAdmin ? ev?.SchoolScore : ev?.CompanyScore;
         var myComment = isAdmin ? ev?.SchoolComment : ev?.CompanyComment;
         <div class="col-12 col-lg-6">
@@ -48,14 +51,22 @@
                             </div>
                             <div class="small text-secondary">@a.JobPost.Title · @a.JobPost.Company?.CompanyName</div>
                         </div>
-                        @if (ev?.FinalScore is double final)
-                        {
-                            <span class="badge fs-6 @(final >= 5.0 ? "text-bg-success" : "text-bg-danger")">@Fmt(final)</span>
-                        }
-                        else
-                        {
-                            <span class="badge text-bg-secondary">Chưa đủ điểm</span>
-                        }
+                        <div class="d-flex flex-column align-items-end gap-1">
+                            @if (ev?.FinalScore is double final)
+                            {
+                                <span class="badge fs-6 @(final >= 5.0 ? "text-bg-success" : "text-bg-danger")">@Fmt(final)</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Chưa đủ điểm</span>
+                            }
+                            @if (ev != null)
+                            {
+                                <span class="badge @(ev.IsPublished ? "text-bg-info" : "text-bg-light border")">
+                                    <i class="bi @(ev.IsPublished ? "bi-eye" : "bi-eye-slash") me-1"></i>@(ev.IsPublished ? "Đã công bố" : "Chưa công bố")
+                                </span>
+                            }
+                        </div>
                     </div>
 
                     <div class="row g-2 text-center mb-3">
@@ -79,6 +90,11 @@
                         </div>
                     </div>
 
+                    <div class="small mb-2 @(canScore ? "text-secondary" : "text-danger")">
+                        <i class="bi bi-journal-text me-1"></i>Báo cáo tuần: @reportCount/@minReports
+                        @if (!canScore) { <text> · chưa đủ để chấm điểm</text> }
+                    </div>
+
                     @if (!string.IsNullOrWhiteSpace(ev?.CompanyComment))
                     {
                         <div class="small fw-semibold text-secondary">Nhận xét của Doanh nghiệp</div>
@@ -90,7 +106,16 @@
                         <div class="feedback-box mb-2" style="white-space: pre-line;">@ev!.SchoolComment</div>
                     }
 
-                    <button type="button" class="btn btn-primary btn-sm mt-2 btn-score"
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                    @if (!canScore)
+                    {
+                        <button type="button" class="btn btn-primary btn-sm" disabled title="Sinh viên cần nộp đủ @minReports tuần báo cáo (hiện @reportCount)">
+                            <i class="bi bi-lock me-1"></i>Chưa mở chấm điểm
+                        </button>
+                    }
+                    else
+                    {
+                    <button type="button" class="btn btn-primary btn-sm btn-score"
                             data-bs-toggle="modal" data-bs-target="#scoreModal"
                             data-app="@a.Id"
                             data-name="@a.StudentProfile.FullName"
@@ -98,6 +123,21 @@
                             data-comment="@myComment">
                         <i class="bi bi-pencil-square me-1"></i>@(myScore.HasValue ? "Sửa điểm" : "Chấm điểm")
                     </button>
+                    }
+                    @if (isAdmin && ev?.FinalScore != null)
+                    {
+                        <form asp-action="Publish" method="post" class="d-inline"
+                              data-txa-confirm="@(ev.IsPublished ? "Sinh viên sẽ không còn thấy kết quả đánh giá cuối kỳ của mình." : "Sinh viên " + a.StudentProfile.FullName + " sẽ thấy điểm và nhận xét cuối kỳ của mình.")"
+                              data-txa-title="@(ev.IsPublished ? "Thu hồi công bố?" : "Công bố kết quả?")"
+                              data-txa-ok="@(ev.IsPublished ? "Thu hồi" : "Công bố")">
+                            <input type="hidden" name="applicationId" value="@a.Id" />
+                            <input type="hidden" name="publish" value="@(ev.IsPublished ? "false" : "true")" />
+                            <button type="submit" class="btn btn-sm @(ev.IsPublished ? "btn-outline-secondary" : "btn-success")">
+                                <i class="bi @(ev.IsPublished ? "bi-eye-slash" : "bi-megaphone") me-1"></i>@(ev.IsPublished ? "Thu hồi công bố" : "Công bố điểm")
+                            </button>
+                        </form>
+                    }
+                    </div>
                 </div>
             </div>
         </div>

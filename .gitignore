@@ -38,3 +38,5 @@ Desktop.ini
 
 # claude
 .claude/
+# Cài đặt giao diện lưu cục bộ
+App_Data/

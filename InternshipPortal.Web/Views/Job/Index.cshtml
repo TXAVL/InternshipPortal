@@ -70,8 +70,8 @@
                 <div class="card card-lift h-100">
                     <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                            <span class="badge bg-primary">@item.Major</span>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <span class="badge bg-primary flex-shrink-0">@item.Major</span>
+                            <span class="badge badge-clip bg-success-subtle text-success border border-success-subtle" title="@(string.IsNullOrEmpty(item.SalaryRange) ? "Thỏa thuận" : item.SalaryRange)">
                                 @(string.IsNullOrEmpty(item.SalaryRange) ? "Thỏa thuận" : item.SalaryRange)
                             </span>
                         </div>

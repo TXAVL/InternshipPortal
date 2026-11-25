@@ -20,6 +20,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Cài đặt giao diện mặc định do Admin đặt (lưu ở App_Data/site-settings.json)
+builder.Services.AddSingleton<InternshipPortal.Web.Infrastructure.SiteSettingsStore>();
+
 var app = builder.Build();
 
 // Seed initial database data

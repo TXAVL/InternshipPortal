@@ -1,0 +1,62 @@
+@model SiteSettings
+
+@{
+    ViewData["Title"] = "Cài đặt hệ thống";
+}
+
+<div class="mb-3">
+    <h1 class="h3 fw-bold mb-1">Cài đặt hệ thống</h1>
+    <p class="text-secondary mb-0">Chỉ Admin thấy trang này. Thay đổi áp dụng cho mọi người dùng. Giao diện và theme cá nhân đặt ở nút bánh răng bên phải màn hình.</p>
+</div>
+
+<partial name="_Alerts" />
+
+<form asp-action="Save" method="post" class="card border-0">
+    <div class="card-body p-3 p-md-4">
+        <div class="mb-4">
+            <label for="OrganizationName" class="form-label fw-semibold">Tên đơn vị</label>
+            <input type="text" id="OrganizationName" name="OrganizationName" value="@Model.OrganizationName" maxlength="60" class="form-control" required />
+            <div class="form-text">Hiện trên thanh menu, tiêu đề tab và chân trang.</div>
+        </div>
+
+        <div class="setting-row">
+            <div>
+                <div class="fw-semibold">Cho phép sinh viên tự đăng ký</div>
+                <div class="small text-secondary">Tắt để ẩn nút Đăng ký và chặn trang đăng ký (ví dụ khi hết đợt thực tập).</div>
+            </div>
+            <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="AllowStudentRegistration" name="AllowStudentRegistration" value="true" checked="@Model.AllowStudentRegistration" aria-label="Cho phép sinh viên tự đăng ký" />
+                <input type="hidden" name="AllowStudentRegistration" value="false" />
+            </div>
+        </div>
+
+        <div class="setting-row align-items-center">
+            <div>
+                <div class="fw-semibold">Số tuần báo cáo tối thiểu để chấm điểm</div>
+                <div class="small text-secondary">Sinh viên phải nộp đủ số tuần này thì Khoa và doanh nghiệp mới chấm điểm cuối kỳ được. Đặt 0 để không yêu cầu.</div>
+            </div>
+            <input type="number" name="MinReportsForEvaluation" value="@Model.MinReportsForEvaluation" min="0" max="52" class="form-control" style="width: 90px;" aria-label="Số tuần báo cáo tối thiểu" required />
+        </div>
+
+        <div class="setting-row">
+            <div class="flex-grow-1">
+                <div class="fw-semibold">Thông báo toàn hệ thống</div>
+                <div class="small text-secondary mb-2">Hiện thành một dải ở đầu mọi trang, ví dụ hạn nộp báo cáo hoặc lịch bảo trì.</div>
+                <textarea name="AnnouncementText" rows="2" maxlength="300" class="form-control" placeholder="Nhập nội dung thông báo...">@Model.AnnouncementText</textarea>
+            </div>
+            <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="AnnouncementEnabled" name="AnnouncementEnabled" value="true" checked="@Model.AnnouncementEnabled" aria-label="Bật thông báo" />
+            </div>
+        </div>
+
+        <div class="setting-row align-items-center">
+            <div>
+                <div class="fw-semibold">Dữ liệu mẫu</div>
+                <div class="small text-secondary">Xóa toàn bộ dữ liệu và nạp lại bộ dữ liệu mẫu. Thao tác nằm ở trang Tổng quan, có hộp thoại xác nhận.</div>
+            </div>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary btn-sm text-nowrap">Mở Tổng quan</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4 mt-2"><i class="bi bi-check2 me-1"></i>Lưu cài đặt</button>
+    </div>
+</form>

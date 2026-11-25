@@ -16,10 +16,12 @@ namespace InternshipPortal.Web.Controllers;
 public class EvaluationController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly SiteSettingsStore _site;
 
-    public EvaluationController(ApplicationDbContext context)
+    public EvaluationController(ApplicationDbContext context, SiteSettingsStore site)
     {
         _context = context;
+        _site = site;
     }
 
     // GET: /Evaluation
@@ -31,6 +33,7 @@ public class EvaluationController : Controller
             .Include(a => a.JobPost)
                 .ThenInclude(j => j.Company)
             .Include(a => a.Evaluation)
+            .Include(a => a.WeeklyReports)
             .AsQueryable();
 
         var companyId = User.GetCompanyScope();
@@ -42,6 +45,7 @@ public class EvaluationController : Controller
         var model = await query
             .OrderBy(a => a.StudentProfile.FullName)
             .ToListAsync();
+        ViewBag.MinReports = _site.Current.MinReportsForEvaluation;
         return View(model);
     }
 
@@ -63,6 +67,7 @@ public class EvaluationController : Controller
         var application = await _context.Applications
             .Include(a => a.JobPost)
             .Include(a => a.Evaluation)
+            .Include(a => a.WeeklyReports)
             .FirstOrDefaultAsync(a => a.Id == applicationId);
         if (application == null)
         {
@@ -79,6 +84,14 @@ public class EvaluationController : Controller
         if (application.Status != ApplicationStatus.Accepted)
         {
             TempData["ErrorMessage"] = "Chỉ chấm điểm cho sinh viên đã Trúng tuyển.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Chỉ chấm khi sinh viên đã nộp đủ số tuần báo cáo tối thiểu (do Admin đặt trong Cài đặt hệ thống)
+        var minReports = _site.Current.MinReportsForEvaluation;
+        if (application.WeeklyReports.Count < minReports)
+        {
+            TempData["ErrorMessage"] = $"Sinh viên mới nộp {application.WeeklyReports.Count}/{minReports} tuần báo cáo, chưa đủ để chấm điểm cuối kỳ.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -104,6 +117,14 @@ public class EvaluationController : Controller
         evaluation.EvaluatedAt = DateTime.Now;
         evaluation.Recalculate();
 
+        // Điểm đã đổi sau khi công bố thì thu hồi công bố để Khoa kiểm tra lại
+        if (evaluation.IsPublished)
+        {
+            evaluation.IsPublished = false;
+            evaluation.PublishedAt = null;
+            TempData["WarningMessage"] = "Điểm đã thay đổi nên kết quả được thu hồi công bố. Khoa hãy công bố lại sau khi kiểm tra.";
+        }
+
         try
         {
             await _context.SaveChangesAsync();
@@ -118,6 +139,34 @@ public class EvaluationController : Controller
         TempData["SuccessMessage"] = evaluation.FinalScore.HasValue
             ? $"Đã lưu điểm. Điểm tổng kết: {evaluation.FinalScore.Value.ToString("0.##", CultureInfo.InvariantCulture)}."
             : "Đã lưu điểm. Điểm tổng kết sẽ có khi đủ cả điểm Doanh nghiệp và điểm Khoa.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: /Evaluation/Publish  (chỉ Khoa / Admin: công bố hoặc thu hồi kết quả cho sinh viên)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Publish(int applicationId, bool publish)
+    {
+        var evaluation = await _context.Evaluations.FirstOrDefaultAsync(e => e.ApplicationId == applicationId);
+        if (evaluation == null)
+        {
+            return NotFound();
+        }
+
+        if (publish && !evaluation.FinalScore.HasValue)
+        {
+            TempData["ErrorMessage"] = "Chỉ công bố được khi đã đủ cả điểm Doanh nghiệp và điểm Khoa.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        evaluation.IsPublished = publish;
+        evaluation.PublishedAt = publish ? DateTime.Now : null;
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = publish
+            ? "Đã công bố kết quả. Sinh viên giờ xem được điểm của mình."
+            : "Đã thu hồi công bố. Sinh viên không còn thấy kết quả.";
         return RedirectToAction(nameof(Index));
     }
 }

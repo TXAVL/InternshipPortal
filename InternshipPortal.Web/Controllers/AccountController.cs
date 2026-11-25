@@ -19,10 +19,12 @@ public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly PasswordHasher<UserAccount> _hasher = new();
+    private readonly SiteSettingsStore _site;
 
-    public AccountController(ApplicationDbContext context)
+    public AccountController(ApplicationDbContext context, SiteSettingsStore site)
     {
         _context = context;
+        _site = site;
     }
 
     // GET: /Account/Login
@@ -80,6 +82,12 @@ public class AccountController : Controller
             return RedirectToHome();
         }
 
+        if (!_site.Current.AllowStudentRegistration)
+        {
+            TempData["WarningMessage"] = "Hiện hệ thống tạm đóng đăng ký tài khoản sinh viên. Vui lòng liên hệ Khoa.";
+            return RedirectToAction(nameof(Login));
+        }
+
         return View(new RegisterViewModel());
     }
 
@@ -89,6 +97,12 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
+        if (!_site.Current.AllowStudentRegistration)
+        {
+            TempData["WarningMessage"] = "Hiện hệ thống tạm đóng đăng ký tài khoản sinh viên. Vui lòng liên hệ Khoa.";
+            return RedirectToAction(nameof(Login));
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);

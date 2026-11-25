@@ -63,14 +63,14 @@
                 <h5 class="fw-bold border-bottom pb-2 text-primary">
                     <i class="bi bi-file-earmark-text me-2"></i>Mô tả công việc
                 </h5>
-                <div class="text-secondary lh-base" style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(Model.Description) ? "Chưa có thông tin mô tả." : Model.Description)</div>
+                <div class="lh-base" style="white-space: pre-line;" data-txa-render="@Model.Description">@(string.IsNullOrWhiteSpace(Model.Description) ? "Chưa có thông tin mô tả." : Model.Description)</div>
             </div>
 
             <div class="mb-4">
                 <h5 class="fw-bold border-bottom pb-2 text-primary">
                     <i class="bi bi-check2-circle me-2"></i>Yêu cầu ứng viên
                 </h5>
-                <div class="text-secondary lh-base" style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(Model.Requirements) ? "Chưa có thông tin yêu cầu." : Model.Requirements)</div>
+                <div class="lh-base" style="white-space: pre-line;" data-txa-render="@Model.Requirements">@(string.IsNullOrWhiteSpace(Model.Requirements) ? "Chưa có thông tin yêu cầu." : Model.Requirements)</div>
             </div>
 
             <div class="pt-3 border-top d-flex flex-wrap gap-2 align-items-center">
@@ -99,7 +99,9 @@
                     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
                         <i class="bi bi-pencil me-1"></i>Sửa tin
                     </a>
-                    <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" class="d-inline"
+                          data-txa-confirm="@(Model.IsActive ? "Tin sẽ ngừng nhận hồ sơ mới cho đến khi bạn mở lại." : "Tin sẽ nhận hồ sơ trở lại.")"
+                          data-txa-title="@(Model.IsActive ? "Tạm đóng tin tuyển dụng?" : "Mở lại tin tuyển dụng?")" data-txa-ok="@(Model.IsActive ? "Tạm đóng" : "Mở lại")">
                         <button type="submit" class="btn btn-outline-warning">
                             <i class="bi @(Model.IsActive ? "bi-lock" : "bi-unlock") me-1"></i>@(Model.IsActive ? "Tạm đóng" : "Mở lại")
                         </button>

@@ -69,13 +69,13 @@
 
                             <div class="col-12">
                                 <label asp-for="Description" class="form-label fw-semibold">Mô tả công việc</label>
-                                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả trách nhiệm, công việc cụ thể của thực tập sinh..."></textarea>
+                                <textarea asp-for="Description" class="form-control" rows="10" data-txa-editor placeholder="Mô tả trách nhiệm, công việc cụ thể của thực tập sinh... (hỗ trợ Markdown và HTML)"></textarea>
                                 <span asp-validation-for="Description" class="text-danger small"></span>
                             </div>
 
                             <div class="col-12">
                                 <label asp-for="Requirements" class="form-label fw-semibold">Yêu cầu ứng viên</label>
-                                <textarea asp-for="Requirements" class="form-control" rows="4" placeholder="Kiến thức kỹ năng, tinh thần làm việc, năm học..."></textarea>
+                                <textarea asp-for="Requirements" class="form-control" rows="10" data-txa-editor placeholder="Kiến thức kỹ năng, tinh thần làm việc, năm học... (hỗ trợ Markdown và HTML)"></textarea>
                                 <span asp-validation-for="Requirements" class="text-danger small"></span>
                             </div>
 
