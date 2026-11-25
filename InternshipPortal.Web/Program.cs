@@ -49,6 +49,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/Home/Status", "?code={0}");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -63,3 +65,6 @@ app.MapControllerRoute(
     pattern: "{controller=Job}/{action=Index}/{id?}");
 
 app.Run();
+
+// Cho phép dự án test (WebApplicationFactory) khởi chạy ứng dụng
+public partial class Program { }

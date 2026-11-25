@@ -31,6 +31,14 @@ public class HomeController : Controller
         return View();
     }
 
+    // Trang thông báo thân thiện cho 404 / 403 / lỗi khác (được UseStatusCodePagesWithReExecute gọi, mã trạng thái gốc vẫn giữ nguyên)
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Status(int code)
+    {
+        ViewBag.Code = code;
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

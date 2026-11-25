@@ -42,3 +42,15 @@ Bạn B clone project về để làm đẹp giao diện Ngày 1:
    - `InternshipPortal.Web/Views/Job/Detail.cshtml`: Giao diện chi tiết việc làm, thông tin công ty, popup modal nộp đơn.
    - `InternshipPortal.Web/wwwroot/css/site.css`: Viết thêm CSS, chỉnh màu sắc, hiệu ứng nút bấm.
 4. **Nộp bài**: Sau khi hoàn thành giao diện, chỉ cần nhấp đúp file **`submit-work-day2.bat`** ở thư mục gốc để tự động build và đẩy lên nhánh `feature/day-2-auth-ui` trên GitHub (kèm tạo Pull Request vào `main`)!
+
+## Chạy test tự động
+
+Bộ test (xUnit) chạy ứng dụng thật trên **một database tạm riêng**, tạo mới mỗi lần chạy và tự xóa khi xong. Test không đụng vào dữ liệu thật của `InternshipDb`, thư mục `uploads` hay cài đặt hệ thống.
+
+```powershell
+dotnet test InternshipPortal.Tests
+```
+
+- Cần có `InternshipPortal.Web/appsettings.json` (tạo từ `appsettings.example.json`). Test lấy chuỗi kết nối từ file này và chỉ đổi tên database. Muốn dùng máy chủ khác, đặt biến môi trường `TEST_SQL_CONNECTION`.
+- Nội dung kiểm tra: phân quyền 3 vai trò và truy cập chéo giữa các công ty, đăng ký/đăng nhập, tin tuyển dụng, nộp hồ sơ và upload CV, nhật ký tuần, đánh giá và công bố điểm, xuất Excel, cài đặt hệ thống, khôi phục dữ liệu mẫu, cùng các test logic thuần.
+- Phần JavaScript (TXAEditor, bộ lọc XSS, TXA UI, theme) chưa có test tự động, cần kiểm tra tay trên trình duyệt.

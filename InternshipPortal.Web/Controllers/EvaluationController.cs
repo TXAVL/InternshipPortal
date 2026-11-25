@@ -57,7 +57,7 @@ public class EvaluationController : Controller
         // Chấp nhận cả "8.5" lẫn "8,5" để không phụ thuộc cấu hình ngôn ngữ của máy chủ
         var raw = (score ?? string.Empty).Trim().Replace(',', '.');
         if (!double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
-            || value < 0 || value > 10)
+            || !double.IsFinite(value) || value < 0 || value > 10)
         {
             TempData["ErrorMessage"] = "Điểm phải là số từ 0 đến 10.";
             return RedirectToAction(nameof(Index));

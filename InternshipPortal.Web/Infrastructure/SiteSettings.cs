@@ -62,10 +62,10 @@ public class SiteSettingsStore
     private readonly object _lock = new();
     private SiteSettings _current;
 
-    public SiteSettingsStore(IWebHostEnvironment env)
+    public SiteSettingsStore(IWebHostEnvironment env, IConfiguration config)
     {
-        var dir = Path.Combine(env.ContentRootPath, "App_Data");
-        _path = Path.Combine(dir, "site-settings.json");
+        // SiteSettings:Path cho phép đổi nơi lưu (dùng trong test để không đụng cài đặt thật)
+        _path = config["SiteSettings:Path"] ?? Path.Combine(env.ContentRootPath, "App_Data", "site-settings.json");
         _current = Load();
     }
 

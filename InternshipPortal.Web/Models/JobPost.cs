@@ -27,6 +27,9 @@ public class JobPost
 
     public bool IsActive { get; set; } = true;
 
+    /// <summary>Tin còn nhận hồ sơ: đang mở và chưa quá hạn nộp. (Thuộc tính tính toán, không lưu vào CSDL.)</summary>
+    public bool IsOpen => IsActive && ExpireDate.Date >= DateTime.Today;
+
     public Company Company { get; set; } = null!;
 
     public List<Application> Applications { get; set; } = new();

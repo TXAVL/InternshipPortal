@@ -127,6 +127,12 @@ public class JobController : Controller
             ModelState.AddModelError(nameof(JobPost.CompanyId), "Doanh nghiệp chỉ được đăng tin cho công ty mình.");
         }
 
+        var targetCompany = await _context.Companies.FindAsync(job.CompanyId);
+        if (targetCompany == null || !targetCompany.IsApproved)
+        {
+            ModelState.AddModelError(nameof(JobPost.CompanyId), "Chỉ đăng tin cho doanh nghiệp đã được duyệt.");
+        }
+
         if (ModelState.IsValid)
         {
             _context.JobPosts.Add(job);
@@ -288,10 +294,40 @@ public class JobController : Controller
             return NotFound();
         }
 
+        // Không nhận hồ sơ khi tin đã đóng hoặc đã quá hạn nộp (chặn cả khi gửi thẳng request, không qua nút trên giao diện)
+        if (!job.IsOpen)
+        {
+            TempData["WarningMessage"] = job.IsActive
+                ? "Tin tuyển dụng này đã hết hạn nộp hồ sơ."
+                : "Tin tuyển dụng này đã đóng, không nhận hồ sơ mới.";
+            return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+        }
+
         if (!ModelState.IsValid)
         {
             TempData["ErrorMessage"] = "Thông tin nộp hồ sơ chưa hợp lệ. Vui lòng kiểm tra lại!";
             return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+        }
+
+        // Khách (chưa đăng nhập sinh viên) không được sửa hồ sơ / thay CV của một mã sinh viên đã tồn tại
+        if (!User.IsInRole(Roles.Student))
+        {
+            var typedCode = model.StudentCode.Trim().ToLower();
+            var existing = await _context.StudentProfiles.FirstOrDefaultAsync(s => s.StudentCode.ToLower() == typedCode);
+            if (existing != null)
+            {
+                if (await _context.UserAccounts.AnyAsync(u => u.Username == existing.StudentCode))
+                {
+                    TempData["WarningMessage"] = "Mã sinh viên này đã có tài khoản. Vui lòng đăng nhập bằng tài khoản sinh viên để nộp hồ sơ.";
+                    return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+                }
+
+                if (!string.Equals(existing.Email, model.Email.Trim(), StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["WarningMessage"] = "Mã sinh viên này đã có hồ sơ với email khác. Hãy nhập đúng email đã dùng trước đó.";
+                    return RedirectToAction(nameof(Detail), new { id = model.JobPostId });
+                }
+            }
         }
 
         // Xử lý upload file CV nếu có

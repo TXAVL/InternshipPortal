@@ -76,6 +76,13 @@ public class ApplicationController : Controller
     [Authorize(Roles = "Admin,Company")]
     public async Task<IActionResult> UpdateStatus(int id, ApplicationStatus status)
     {
+        // Giá trị trạng thái lạ (vd 99, chữ bất kỳ) không được làm hỏng hoặc reset trạng thái đơn
+        if (!ModelState.IsValid || !Enum.IsDefined(status))
+        {
+            TempData["ErrorMessage"] = "Trạng thái không hợp lệ.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var app = await _context.Applications
             .Include(a => a.JobPost)
             .FirstOrDefaultAsync(a => a.Id == id);

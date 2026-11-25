@@ -143,7 +143,9 @@
             }
 
             // Bảng
-            if (line.indexOf('|') > -1 && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])) {
+            // Hàng phân cách bảng: mỗi ô gồm 1+ dấu gạch, có thể kèm dấu hai chấm căn lề (:-:, --:, :--); bắt buộc có ký tự |
+            if (line.indexOf('|') > -1 && i + 1 < lines.length && lines[i + 1].indexOf('|') > -1 &&
+                /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(lines[i + 1])) {
                 var head = splitRow(line), aligns = splitRow(lines[i + 1]).map(function (c) {
                     return /^:-+:$/.test(c) ? 'center' : /-+:$/.test(c) ? 'right' : /^:-+/.test(c) ? 'left' : '';
                 });
@@ -204,7 +206,8 @@
     function safeUrl(url, isImg) {
         var u = String(url || '').trim();
         var compact = u.replace(/[\u0000- ]/g, '').toLowerCase();
-        if (/^(https?:|mailto:|tel:|#|\/(?!\/))/.test(compact) || /^[\w\-./?=&%]+$/.test(compact) && compact.indexOf(':') === -1) return u;
+        if (compact.indexOf('//') === 0) return null;                 // //host (giao thức tương đối) bị chặn
+        if (/^(https?:|mailto:|tel:|#|\/)/.test(compact) || /^[\w\-./?=&%]+$/.test(compact) && compact.indexOf(':') === -1) return u;
         if (isImg && /^data:image\/(png|jpe?g|gif|webp);base64,/.test(compact)) return u;
         return null;
     }

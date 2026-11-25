@@ -1,0 +1,22 @@
+@{
+    int code = ViewBag.Code is int c ? c : 500;
+    var (icon, title, text) = code switch
+    {
+        404 => ("bi-compass", "Không tìm thấy trang", "Trang hoặc dữ liệu bạn mở không tồn tại, có thể đã bị xóa hoặc đường dẫn bị sai."),
+        403 => ("bi-shield-lock", "Bạn không có quyền truy cập", "Tài khoản hiện tại không được phép xem nội dung này."),
+        400 => ("bi-exclamation-triangle", "Yêu cầu không hợp lệ", "Yêu cầu gửi lên không hợp lệ hoặc đã hết hạn. Hãy tải lại trang và thử lại."),
+        _ => ("bi-bug", "Có lỗi xảy ra", "Hệ thống gặp sự cố khi xử lý yêu cầu. Vui lòng thử lại sau.")
+    };
+    ViewData["Title"] = title;
+}
+
+<div class="denied-wrap text-center txa-status-page" data-status-code="@code">
+    <div class="denied-icon"><i class="bi @icon"></i></div>
+    <div class="text-secondary small mt-3">Mã lỗi @code</div>
+    <h1 class="h4 fw-bold mt-1">@title</h1>
+    <p class="text-secondary">@text</p>
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary px-4"><i class="bi bi-house me-1"></i>Về trang chủ</a>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">Quay lại</a>
+    </div>
+</div>
